@@ -1,61 +1,72 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-asciidocapi - AsciiDoc API wrapper class.
+asciidoc3api - AsciiDoc3 API wrapper class.
 
-The AsciiDocAPI class provides an API for executing asciidoc. Minimal example
+The AsciiDoc3API class provides an API for executing asciidoc. Minimal example
 compiles `mydoc.txt` to `mydoc.html`:
 
-  import asciidocapi
-  asciidoc = asciidocapi.AsciiDocAPI()
-  asciidoc.execute('mydoc.txt')
+  import asciidoc3api
+  asciidoc3 = asciidoc3api.AsciiDoc3API()
+  asciidoc3.execute('mydoc.txt')
 
-- Full documentation in asciidocapi.txt.
+- Full documentation in asciidoc3api.txt.
 - See the doctests below for more examples.
 
-Doctests:
+Doctests: ...
 
 1. Check execution:
 
-   >>> import StringIO
-   >>> infile = StringIO.StringIO('Hello *{author}*')
-   >>> outfile = StringIO.StringIO()
-   >>> asciidoc = AsciiDocAPI()
-   >>> asciidoc.options('--no-header-footer')
-   >>> asciidoc.attributes['author'] = 'Joe Bloggs'
-   >>> asciidoc.execute(infile, outfile, backend='html4')
-   >>> print outfile.getvalue()
+   >>> import io
+   >>> infile = io.StringIO('Hello *{author}*')
+   >>> outfile = io.StringIO()
+   >>> asciidoc3 = AsciiDoc3API()
+   >>> asciidoc3.options('--no-header-footer')
+   >>> asciidoc3.attributes['author'] = 'Joe Bloggs'
+   >>> asciidoc3.execute(infile, outfile, backend='html4')
+   >>> print(outfile.getvalue())
    <p>Hello <strong>Joe Bloggs</strong></p>
 
-   >>> asciidoc.attributes['author'] = 'Bill Smith'
-   >>> infile = StringIO.StringIO('Hello _{author}_')
-   >>> outfile = StringIO.StringIO()
-   >>> asciidoc.execute(infile, outfile, backend='docbook')
-   >>> print outfile.getvalue()
+   >>> asciidoc3.attributes['author'] = 'Bill Smith'
+   >>> infile = io.StringIO('Hello _{author}_')
+   >>> outfile = io.StringIO()
+   >>> asciidoc3.execute(infile, outfile, backend='docbook')
+   >>> print(outfile.getvalue())
    <simpara>Hello <emphasis>Bill Smith</emphasis></simpara>
 
 2. Check error handling:
 
-   >>> import StringIO
-   >>> asciidoc = AsciiDocAPI()
-   >>> infile = StringIO.StringIO('---------')
-   >>> outfile = StringIO.StringIO()
-   >>> asciidoc.execute(infile, outfile)
+   >>> import io
+   >>> asciidoc3 = AsciiDoc3API()
+   >>> infile = io.StringIO('---------')
+   >>> outfile = io.StringIO()
+   >>> asciidoc3.execute(infile, outfile)
    Traceback (most recent call last):
      File "<stdin>", line 1, in <module>
-     File "asciidocapi.py", line 189, in execute
-       raise AsciiDocError(self.messages[-1])
-   AsciiDocError: ERROR: <stdin>: line 1: [blockdef-listing] missing closing delimiter
+     File "asciidoc3api.py", line 189, in execute
+       raise AsciiDoc3Error(self.messages[-1])
+   AsciiDoc3Error: ERROR: <stdin>: line 1: [blockdef-listing] missing closing delimiter
 
-
-Copyright (C) 2009 Stuart Rackham. Free use of this software is granted
-under the terms of the GNU General Public License (GPL).
-
+Copyright (C) 2009 Stuart Rackham.
+Copyright (C) 2018 Berthold Gehrke <berthold.gehrke@gmail.com>.
+Free use of this software is granted under the terms of the
+GNU General Public License v3 or higher (GPLv3).
 """
 
-import sys,os,re,imp
+import os
+#import re # not used in AsciiDoc3
+import sys
+# module 'imp' deprecated since 3.4 -> 'importlib'
+if float('3.0') <= float(sys.version[:3]) < float('3.4'):
+    import imp
+elif float('3.4') <= float(sys.version[:3]):
+    import importlib
+else:
+    sys.exit('Python >= 3.0 required!')
 
+# next two lines are momentarily unused placeholders
+# since we have no doctests yet
 API_VERSION = '0.1.2'
-MIN_ASCIIDOC_VERSION = '8.4.1'  # Minimum acceptable AsciiDoc version.
+MIN_ASCIIDOC3_VERSION = '3.0.1'
 
 
 def find_in_path(fname, path=None):
@@ -72,13 +83,13 @@ def find_in_path(fname, path=None):
         return None
 
 
-class AsciiDocError(Exception):
+class AsciiDoc3Error(Exception):
     pass
 
 
 class Options(object):
     """
-    Stores asciidoc(1) command options.
+    Stores asciidoc3 command options.
     """
     def __init__(self, values=[]):
         self.values = values[:]
@@ -86,138 +97,108 @@ class Options(object):
         """Shortcut for append method."""
         self.append(name, value)
     def append(self, name, value=None):
-        if type(value) in (int,float):
+        if type(value) in (int, float):
             value = str(value)
-        self.values.append((name,value))
+        self.values.append((name, value))
+
+# 'class Version' not yet implemented in AsciiDoc3
+# used in Ascidoc v2 for doctests
+##class Version(object):
+##    """
+##    Parse and compare AsciiDoc version numbers. Instance attributes:
+##    ...
+##    """
+##    def __init__(self, version):
+##        self.string = version
+##        ...
+##        return result
 
 
-class Version(object):
+class AsciiDoc3API(object):
     """
-    Parse and compare AsciiDoc version numbers. Instance attributes:
-
-    string: String version number '<major>.<minor>[.<micro>][suffix]'.
-    major:  Integer major version number.
-    minor:  Integer minor version number.
-    micro:  Integer micro version number.
-    suffix: Suffix (begins with non-numeric character) is ignored when
-            comparing.
-
-    Doctest examples:
-
-    >>> Version('8.2.5') < Version('8.3 beta 1')
-    True
-    >>> Version('8.3.0') == Version('8.3. beta 1')
-    True
-    >>> Version('8.2.0') < Version('8.20')
-    True
-    >>> Version('8.20').major
-    8
-    >>> Version('8.20').minor
-    20
-    >>> Version('8.20').micro
-    0
-    >>> Version('8.20').suffix
-    ''
-    >>> Version('8.20 beta 1').suffix
-    'beta 1'
-
+    AsciiDoc3 API class.
     """
-    def __init__(self, version):
-        self.string = version
-        reo = re.match(r'^(\d+)\.(\d+)(\.(\d+))?\s*(.*?)\s*$', self.string)
-        if not reo:
-            raise ValueError('invalid version number: %s' % self.string)
-        groups = reo.groups()
-        self.major = int(groups[0])
-        self.minor = int(groups[1])
-        self.micro = int(groups[3] or '0')
-        self.suffix = groups[4] or ''
-    def __cmp__(self, other):
-        result = cmp(self.major, other.major)
-        if result == 0:
-            result = cmp(self.minor, other.minor)
-            if result == 0:
-                result = cmp(self.micro, other.micro)
-        return result
-
-
-class AsciiDocAPI(object):
-    """
-    AsciiDoc API class.
-    """
-    def __init__(self, asciidoc_py=None):
+    def __init__(self, asciidoc3_py=None):
         """
-        Locate and import asciidoc.py.
+        Locate and import asciidoc3.py.
         Initialize instance attributes.
         """
         self.options = Options()
         self.attributes = {}
         self.messages = []
-        # Search for the asciidoc command file.
-        # Try ASCIIDOC_PY environment variable first.
-        cmd = os.environ.get('ASCIIDOC_PY')
+        # Search for the asciidoc3 command file.
+        # Try ASCIIDOC3_PY environment variable first.
+        cmd = os.environ.get('ASCIIDOC3_PY')
         if cmd:
             if not os.path.isfile(cmd):
-                raise AsciiDocError('missing ASCIIDOC_PY file: %s' % cmd)
-        elif asciidoc_py:
+                raise AsciiDoc3Error('missing ASCIIDOC3_PY file: %s' % cmd)
+        elif asciidoc3_py:
             # Next try path specified by caller.
-            cmd = asciidoc_py
+            cmd = asciidoc3_py
             if not os.path.isfile(cmd):
-                raise AsciiDocError('missing file: %s' % cmd)
+                raise AsciiDoc3Error('missing file: %s' % cmd)
         else:
             # Try shell search paths.
-            for fname in ['asciidoc.py','asciidoc.pyc','asciidoc']:
+            for fname in ['asciidoc3.py', 'asciidoc3.pyc', 'asciidoc3']:
                 cmd = find_in_path(fname)
-                if cmd: break
+                if cmd:
+                    break
             else:
                 # Finally try current working directory.
-                for cmd in ['asciidoc.py','asciidoc.pyc','asciidoc']:
-                    if os.path.isfile(cmd): break
+                for cmd in ['asciidoc3.py', 'asciidoc3.pyc', 'asciidoc3']:
+                    if os.path.isfile(cmd):
+                        break
                 else:
-                    raise AsciiDocError('failed to locate asciidoc')
+                    raise AsciiDoc3Error('failed to locate asciidoc3')
         self.cmd = os.path.realpath(cmd)
-        self.__import_asciidoc()
+        self.__import_asciidoc3()
 
-    def __import_asciidoc(self, reload=False):
+    def __import_asciidoc3(self, reload=False):
         '''
-        Import asciidoc module (script or compiled .pyc).
+        Import asciidoc3 module (script or compiled .pyc).
         See
         http://groups.google.com/group/asciidoc/browse_frm/thread/66e7b59d12cd2f91
         for an explanation of why a seemingly straight-forward job turned out
         quite complicated.
         '''
-        if os.path.splitext(self.cmd)[1] in ['.py','.pyc']:
+        if os.path.splitext(self.cmd)[1] in ['.py', '.pyc']:
             sys.path.insert(0, os.path.dirname(self.cmd))
             try:
                 try:
                     if reload:
-                        import __builtin__  # Because reload() is shadowed.
-                        __builtin__.reload(self.asciidoc)
+                        import builtins  # Because reload() is shadowed.
+                        if float(sys.version[:3]) < float('3.4'):
+                            imp.reload(self.asciidoc3)
+                        else:
+                            importlib.reload(self.asciidoc3)
                     else:
-                        import asciidoc
-                        self.asciidoc = asciidoc
+                        import asciidoc3
+                        self.asciidoc3 = asciidoc3
                 except ImportError:
-                    raise AsciiDocError('failed to import ' + self.cmd)
+                    raise AsciiDoc3Error('failed to import ' + self.cmd)
             finally:
                 del sys.path[0]
         else:
             # The import statement can only handle .py or .pyc files, have to
             # use imp.load_source() for scripts with other names.
             try:
-                imp.load_source('asciidoc', self.cmd)
-                import asciidoc
-                self.asciidoc = asciidoc
+                if float(sys.version[:3]) < float('3.4'):
+                    imp.load_source('asciidoc3', self.cmd)
+                else:
+                    importlib.import_module('asciidoc3')
+                self.asciidoc3 = asciidoc3
             except ImportError:
-                raise AsciiDocError('failed to import ' + self.cmd)
-        if Version(self.asciidoc.VERSION) < Version(MIN_ASCIIDOC_VERSION):
-            raise AsciiDocError(
-                'asciidocapi %s requires asciidoc %s or better'
-                % (API_VERSION, MIN_ASCIIDOC_VERSION))
+                raise AsciiDoc3Error('failed to import ' + self.cmd)
+#        (doctest) Not yet implemented in AsciiDoc3
+#        if Version(self.asciidoc3.VERSION) < Version(MIN_ASCIIDOC3_VERSION):
+#            raise AsciiDoc3Error(
+#                'asciidoc3api %s requires asciidoc3 %s or better'
+#                % (API_VERSION, MIN_ASCIIDOC3_VERSION))
 
     def execute(self, infile, outfile=None, backend=None):
         """
         Compile infile to outfile using backend format.
-        infile can outfile can be file path strings or file like objects.
+        infile and outfile can be file path strings or file like objects.
         """
         self.messages = []
         opts = Options(self.options.values)
@@ -225,27 +206,27 @@ class AsciiDocAPI(object):
             opts('--out-file', outfile)
         if backend is not None:
             opts('--backend', backend)
-        for k,v in self.attributes.items():
+        for k, v in list(self.attributes.items()):
             if v == '' or k[-1] in '!@':
                 s = k
             elif v is None: # A None value undefines the attribute.
                 s = k + '!'
             else:
-                s = '%s=%s' % (k,v)
+                s = '%s=%s' % (k, v)
             opts('--attribute', s)
         args = [infile]
-        # The AsciiDoc command was designed to process source text then
-        # exit, there are globals and statics in asciidoc.py that have
+        # The AsciiDoc3 command was designed to process source text then
+        # exit, there are globals and statics in asciidoc3.py that have
         # to be reinitialized before each run -- hence the reload.
-        self.__import_asciidoc(reload=True)
+        self.__import_asciidoc3(reload=True)
         try:
             try:
-                self.asciidoc.execute(self.cmd, opts.values, args)
+                self.asciidoc3.execute(self.cmd, opts.values, args)
             finally:
-                self.messages = self.asciidoc.messages[:]
-        except SystemExit, e:
+                self.messages = self.asciidoc3.messages[:]
+        except SystemExit as e:
             if e.code:
-                raise AsciiDocError(self.messages[-1])
+                raise AsciiDoc3Error(self.messages[-1])
 
 
 if __name__ == "__main__":
@@ -255,3 +236,4 @@ if __name__ == "__main__":
     import doctest
     options = doctest.NORMALIZE_WHITESPACE + doctest.ELLIPSIS
     doctest.testmod(optionflags=options)
+    
