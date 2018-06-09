@@ -1,46 +1,48 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
-a2x - A toolchain manager for AsciiDoc (converts Asciidoc text files to other
-      file formats)
+a2x3 - A toolchain manager for AsciiDoc3 - converts AsciiDoc3 text files to other
+       file formats. See asciidoc3.org for more information.
 
-Copyright: Stuart Rackham (c) 2009
-License:   MIT
-Email:     srackham@gmail.com
-
+Copyright: (c) 2009 Stuart Rackham <srackham@gmail.com> MIT 
+Copyright: (c) 2018 Berthold Gehrke <berthold.gehrke@gmail.com> for Python3 version
+License:   GNU GPL v3 or higher
 '''
 
-import os
+
 import fnmatch
-import HTMLParser
+import html.parser
+import mimetypes
+import os
 import re
 import shutil
 import subprocess
 import sys
 import traceback
-import urlparse
-import zipfile
+import urllib.parse
 import xml.dom.minidom
-import mimetypes
+import zipfile
 
 PROG = os.path.basename(os.path.splitext(__file__)[0])
-VERSION = '8.6.9'
+# Version corresponds to asciidoc3.py version
+VERSION = '3.0.1'
 
-# AsciiDoc global configuration file directory.
-# NOTE: CONF_DIR is "fixed up" by Makefile -- don't rename or change syntax.
-CONF_DIR = '/etc/asciidoc'
-
+# AsciiDoc3 global configuration file directory.
+# NOTE: CONF_DIR is "fixed up" during install -- don't rename or change syntax.
+CONF_DIR = '/etc/asciidoc3'
+# if installed 'local', e.g. only in your home dir, you may use your directory
+# here; but works somehow or other ...
+#CONF_DIR = '~/.asciidoc3'
 
 ######################################################################
 # Default configuration file parameters.
 ######################################################################
 
-# Optional environment variable dictionary passed to
-# executing programs. If set to None the existing
-# environment is used.
+# Optional environment variable dictionary passed to executing programs.
+# If set to None the existing environment is used.
 ENV = None
 
 # External executables.
-ASCIIDOC = 'asciidoc'
+ASCIIDOC3 = 'asciidoc3'
 XSLTPROC = 'xsltproc'
 DBLATEX = 'dblatex'         # pdf generation.
 FOP = 'fop'                 # pdf generation (--fop option).
@@ -49,7 +51,7 @@ LYNX = 'lynx'               # text generation (if no w3m).
 XMLLINT = 'xmllint'         # Set to '' to disable.
 EPUBCHECK = 'epubcheck'     # Set to '' to disable.
 # External executable default options.
-ASCIIDOC_OPTS = ''
+ASCIIDOC3_OPTS = ''
 DBLATEX_OPTS = ''
 FOP_OPTS = ''
 XSLTPROC_OPTS = ''
@@ -60,20 +62,20 @@ BACKEND_OPTS = ''
 ######################################################################
 
 
-#####################################################################
+######################################################################
 # Utility functions
-#####################################################################
+######################################################################
 
 OPTIONS = None  # These functions read verbose and dry_run command options.
 
 def errmsg(msg):
-    sys.stderr.write('%s: %s\n' % (PROG,msg))
+    sys.stderr.write('%s: %s\n' % (PROG, msg))
 
 def warning(msg):
     errmsg('WARNING: %s' % msg)
 
 def infomsg(msg):
-    print '%s: %s' % (PROG,msg)
+    print('%s: %s' % (PROG, msg))
 
 def die(msg, exit_code=1):
     errmsg('ERROR: %s' % msg)
@@ -99,22 +101,25 @@ class AttrDict(dict):
     def __getattr__(self, key):
         try:
             return self[key]
-        except KeyError, k:
-            if self.has_key('_default'):
+        except KeyError as k:
+            if '_default' in self:
                 return self['_default']
             else:
-                raise AttributeError, k
+                raise AttributeError(k)
     def __setattr__(self, key, value):
         self[key] = value
     def __delattr__(self, key):
-        try: del self[key]
-        except KeyError, k: raise AttributeError, k
+        try:
+            del self[key]
+        except KeyError as k:
+            raise AttributeError(k)
     def __repr__(self):
         return '<AttrDict ' + dict.__repr__(self) + '>'
     def __getstate__(self):
         return dict(self)
-    def __setstate__(self,value):
-        for k,v in value.items(): self[k]=v
+    def __setstate__(self, value):
+        for k, v in list(value.items()):
+            self[k] = v
 
 def isexecutable(file_name):
     return os.path.isfile(file_name) and os.access(file_name, os.X_OK)
@@ -137,9 +142,10 @@ def find_executable(file_name):
                 return os.path.realpath(f)
         return None
     if os.name == 'nt' and os.path.splitext(file_name)[1] == '':
-        for ext in ('.cmd','.bat','.exe'):
+        for ext in ('.cmd', '.bat', '.exe'):
             result = _find_executable(file_name + ext)
-            if result: break
+            if result:
+                break
     else:
         result = _find_executable(file_name)
     return result
@@ -171,7 +177,7 @@ def shell_makedirs(path):
         os.makedirs(path)
 
 def shell_copy(src, dst):
-    verbose('copying "%s" to "%s"' % (src,dst))
+    verbose('copying "%s" to "%s"' % (src, dst))
     if not OPTIONS.dry_run:
         shutil.copy(src, dst)
 
@@ -205,7 +211,7 @@ def shell(cmd, raise_error=True):
         if not mo:
             mo = re.match(r'^\s*(?P<arg0>[^ ]+)', cmd)
         if mo.group('arg0').endswith('.py'):
-            cmd = 'python ' + cmd
+            cmd = 'python3 ' + cmd
         # Remove redundant quoting -- this is not just cosmetic,
         # quoting seems to dramatically decrease the allowed command
         # length in Windows XP.
@@ -215,41 +221,66 @@ def shell(cmd, raise_error=True):
         return
     stdout = stderr = subprocess.PIPE
     try:
+        # call of Popen(cmd, ...) was changed to fit Python3's string/utf-8 definitions
         popen = subprocess.Popen(cmd, stdout=stdout, stderr=stderr,
-                shell=True, env=ENV)
-    except OSError, e:
+                                 shell=True, env=ENV, universal_newlines=True, bufsize=-1)
+    except OSError as e:
         die('failed: %s: %s' % (cmd, e))
     stdoutdata, stderrdata = popen.communicate()
     if OPTIONS.verbose:
-        print stdoutdata
-        print stderrdata
+        print(stdoutdata)
+        print(stderrdata)
     if popen.returncode != 0 and raise_error:
         die('%s returned non-zero exit status %d' % (cmd, popen.returncode))
     return (stdoutdata, stderrdata, popen.returncode)
 
-def find_resources(files, tagname, attrname, filter=None):
+def find_resources(files, tagname, attrname, _filter=None):
     '''
     Search all files and return a list of local URIs from attrname attribute
     values in tagname tags.
     Handles HTML open and XHTML closed tags.
     Non-local URIs are skipped.
     files can be a file name or a list of file names.
-    The filter function takes a dictionary of tag attributes and returns True if
+    The _filter function takes a dictionary of tag attributes and returns True if
     the URI is to be included.
+
+    Added in a2x3.py / AsciiDoc3:
+    A call of 'find_resources' is found in 'class A2X3 def copy_resources(...)':
+    ... find_resources(html_files, 'link', 'href',
+                       lambda attrs: attrs.get('type') == 'text/css') ...
+    That means: parse file 'foo.html' (that is one of or just the 'html_files')
+    to find tags '<link ...  >' - '<a class="link" href="#X40">' is not found.
+    A sample is '<link rel="stylesheet" type="text/css" href="docbook-xsl.css" />'
+    because 'type' == 'text/css' and "_filter(attrs)" == 'True'.
+    So the content of attribute 'href' (== docbook-xsl.css) is a resource-candidate.
+    'docbook-xsl.css' will be appended to 'result' if 'uri' is a 'local file'.
+    A second call is
+    ... find_resources(html_files, 'img', 'src') ...
+    That means: parse file 'foo.html' (that is one of or just the 'html_files')
+    to find tags '<img ...  >'. A sample is '<img alt="[Tip]" src="images/icons/tip.png" />'
+    because the tag starts with '<img'. So the content of attribute 'src'
+    (== images/icons/tip.png) is another resource-candidate.
+    'images/icons/tip.png' will be appended to 'result' if 'uri' is a 'local file'.
     '''
-    class FindResources(HTMLParser.HTMLParser):
+    class FindResources(html.parser.HTMLParser):
         # Nested parser class shares locals with enclosing function.
+
         def handle_startendtag(self, tag, attrs):
+            """ startendtags, e.g. '<img ... />', are handled identically
+                like starttags, e.g. '<img ... >' """
             self.handle_starttag(tag, attrs)
+
         def handle_starttag(self, tag, attrs):
             attrs = dict(attrs)
-            if tag == tagname and (filter is None or filter(attrs)):
+            if tag == tagname and (_filter is None or _filter(attrs)):
                 # Accept only local URIs.
-                uri = urlparse.urlparse(attrs[attrname])
-                if uri[0] in ('','file') and not uri[1] and uri[2]:
+                uri = urllib.parse.urlparse(attrs[attrname])
+                if uri[0] in ('', 'file') and not uri[1] and uri[2]:
                     result.append(uri[2])
+
     if isinstance(files, str):
         files = [files]
+    print("files", files)
     result = []
     for filename in files:
         verbose('finding resources in: %s' % filename)
@@ -258,49 +289,35 @@ def find_resources(files, tagname, attrname, filter=None):
         parser = FindResources()
         # HTMLParser has problems with non-ASCII strings.
         # See http://bugs.python.org/issue3932
+        # a2x3: opens all html-files in 'utf-8' and ignores errors.
+        # The encoding of the 'data' (the text not included by tags)
+        # doesn't care - it is unused information. We need only the
+        # information in tag-attributes and may assume 'utf-8' ...
         contents = read_file(filename)
         mo = re.search(r'\A<\?xml.* encoding="(.*?)"', contents)
         if mo:
-            encoding = mo.group(1)
-            parser.feed(contents.decode(encoding))
-        else:
-            parser.feed(contents)
+            # encoding = mo.group(1)   # v2
+            #_encoding = mo.group(1)  # v3 (unused var _encoding)
+            #parser.feed(contents.decode(encoding))                    # v2
+            contents = str(contents.encode('utf-8', errors='ignore'))  # v3
+        parser.feed(contents)
         parser.close()
-    result = list(set(result))   # Drop duplicate values.
-    result.sort()
+    result = sorted(set(result))   # Drop duplicate values.
+    print("result", result)
     return result
-
-# NOT USED.
-def copy_files(files, src_dir, dst_dir):
-    '''
-    Copy list of relative file names from src_dir to dst_dir.
-    '''
-    for filename in files:
-        filename = os.path.normpath(filename)
-        if os.path.isabs(filename):
-            continue
-        src = os.path.join(src_dir, filename)
-        dst = os.path.join(dst_dir, filename)
-        if not os.path.exists(dst):
-            if not os.path.isfile(src):
-                warning('missing file: %s' % src)
-                continue
-            dstdir = os.path.dirname(dst)
-            shell_makedirs(dstdir)
-            shell_copy(src, dst)
 
 def find_files(path, pattern):
     '''
     Return list of file names matching pattern in directory path.
     '''
     result = []
-    for (p,dirs,files) in os.walk(path):
+    for (p, dirs, files) in os.walk(path):
         for f in files:
             if fnmatch.fnmatch(f, pattern):
-                result.append(os.path.normpath(os.path.join(p,f)))
+                result.append(os.path.normpath(os.path.join(p, f)))
     return result
 
-def exec_xsltproc(xsl_file, xml_file, dst_dir, opts = ''):
+def exec_xsltproc(xsl_file, xml_file, dst_dir, opts=''):
     cwd = os.getcwd()
     shell_cd(dst_dir)
     try:
@@ -308,9 +325,9 @@ def exec_xsltproc(xsl_file, xml_file, dst_dir, opts = ''):
     finally:
         shell_cd(cwd)
 
-def get_source_options(asciidoc_file):
+def get_source_options(asciidoc3_file):
     '''
-    Look for a2x command options in AsciiDoc source file.
+    Look for a2x3 command options in AsciiDoc3 source file.
     Limitation: options cannot contain double-quote characters.
     '''
     def parse_options():
@@ -337,12 +354,12 @@ def get_source_options(asciidoc_file):
             result.append(opt)
 
     result = []
-    if os.path.isfile(asciidoc_file):
+    if os.path.isfile(asciidoc3_file):
         options = ''
-        f = open(asciidoc_file)
+        f = open(asciidoc3_file)
         try:
             for line in f:
-                mo = re.search(r'^//\s*a2x:', line)
+                mo = re.search(r'^//\s*a2x3:', line)
                 if mo:
                     options += ' ' + line[mo.end():].strip()
         finally:
@@ -355,63 +372,63 @@ def get_source_options(asciidoc_file):
 # Application class
 #####################################################################
 
-class A2X(AttrDict):
+class A2X3(AttrDict):
     '''
-    a2x options and conversion functions.
+    a2x3 options and conversion functions.
     '''
 
     def execute(self):
         '''
-        Process a2x command.
+        Process a2x3 command.
         '''
         self.process_options()
         # Append configuration file options.
-        self.asciidoc_opts += ' ' + ASCIIDOC_OPTS
-        self.dblatex_opts  += ' ' + DBLATEX_OPTS
-        self.fop_opts      += ' ' + FOP_OPTS
+        self.asciidoc3_opts += ' ' + ASCIIDOC3_OPTS
+        self.dblatex_opts += ' ' + DBLATEX_OPTS
+        self.fop_opts += ' ' + FOP_OPTS
         self.xsltproc_opts += ' ' + XSLTPROC_OPTS
-        self.backend_opts  += ' ' + BACKEND_OPTS
+        self.backend_opts += ' ' + BACKEND_OPTS
         # Execute to_* functions.
         if self.backend:
             self.to_backend()
         else:
             self.__getattribute__('to_'+self.format)()
-        if not (self.keep_artifacts or self.format == 'docbook' or self.skip_asciidoc):
+        if not (self.keep_artifacts or self.format == 'docbook' or self.skip_asciidoc3):
             shell_rm(self.dst_path('.xml'))
 
     def load_conf(self):
         '''
-        Load a2x configuration file from default locations and --conf-file
+        Load a2x3 configuration file from default locations and --conf-file
         option.
         '''
-        global ASCIIDOC
-        CONF_FILE = 'a2x.conf'
-        a2xdir = os.path.dirname(os.path.realpath(__file__))
+        global ASCIIDOC3
+        CONF_FILE = 'a2x3.conf'
+        a2x3dir = os.path.dirname(os.path.realpath(__file__))
         conf_files = []
-        # From a2x.py directory.
-        conf_files.append(os.path.join(a2xdir, CONF_FILE))
-        # If the asciidoc executable and conf files are in the a2x directory
-        # then use the local copy of asciidoc and skip the global a2x conf.
-        asciidoc = os.path.join(a2xdir, 'asciidoc.py')
-        asciidoc_conf = os.path.join(a2xdir, 'asciidoc.conf')
-        if os.path.isfile(asciidoc) and os.path.isfile(asciidoc_conf):
-            self.asciidoc = asciidoc
+        # From a2x3.py directory.
+        conf_files.append(os.path.join(a2x3dir, CONF_FILE))
+        # If the asciidoc3 executable and conf files are in the a2x3 directory
+        # then use the local copy of asciidoc3 and skip the global a2x3 conf.
+        asciidoc3 = os.path.join(a2x3dir, 'asciidoc3.py')
+        asciidoc3_conf = os.path.join(a2x3dir, 'asciidoc3.conf')
+        if os.path.isfile(asciidoc3) and os.path.isfile(asciidoc3_conf):
+            self.asciidoc3 = asciidoc3
         else:
-            self.asciidoc = None
+            self.asciidoc3 = None
             # From global conf directory.
             conf_files.append(os.path.join(CONF_DIR, CONF_FILE))
         # From $HOME directory.
         home_dir = os.environ.get('HOME')
         if home_dir is not None:
-            conf_files.append(os.path.join(home_dir, '.asciidoc', CONF_FILE))
-        # If asciidoc is not local to a2x then search the PATH.
-        if not self.asciidoc:
-            self.asciidoc = find_executable(ASCIIDOC)
-            if not self.asciidoc:
-                die('unable to find asciidoc: %s' % ASCIIDOC)
+            conf_files.append(os.path.join(home_dir, '.asciidoc3', CONF_FILE))
+        # If asciidoc3 is not local to a2x3 then search the PATH.
+        if not self.asciidoc3:
+            self.asciidoc3 = find_executable(ASCIIDOC3)
+            if not self.asciidoc3:
+                die('unable to find asciidoc3: %s' % ASCIIDOC3)
         # From backend plugin directory.
         if self.backend is not None:
-            stdout = shell(self.asciidoc + ' --backend list')[0]
+            stdout = shell(self.asciidoc3 + ' --backend list')[0]
             backends = [(i, os.path.split(i)[1]) for i in stdout.splitlines()]
             backend_dir = [i[0] for i in backends if i[1] == self.backend]
             if len(backend_dir) == 0:
@@ -420,7 +437,7 @@ class A2X(AttrDict):
                 die('more than one %s backend' % self.backend)
             verbose('found %s backend directory: %s' %
                     (self.backend, backend_dir[0]))
-            conf_files.append(os.path.join(backend_dir[0], 'a2x-backend.py'))
+            conf_files.append(os.path.join(backend_dir[0], 'a2x3-backend.py'))
         # From --conf-file option.
         if self.conf_file is not None:
             if not os.path.isfile(self.conf_file):
@@ -435,26 +452,26 @@ class A2X(AttrDict):
         for f in conf_files:
             if os.path.isfile(f):
                 verbose('loading configuration file: %s' % f)
-                execfile(f, globals())
+                exec(compile(open(f).read(), f, 'exec'), globals())
 
     def process_options(self):
         '''
         Validate and command options and set defaults.
         '''
-        if not os.path.isfile(self.asciidoc_file):
-            die('missing SOURCE_FILE: %s' % self.asciidoc_file)
-        self.asciidoc_file = os.path.abspath(self.asciidoc_file)
-        if os.path.splitext(self.asciidoc_file)[1].lower() == '.xml':
-            self.skip_asciidoc = True
+        if not os.path.isfile(self.asciidoc3_file):
+            die('missing SOURCE_FILE: %s' % self.asciidoc3_file)
+        self.asciidoc3_file = os.path.abspath(self.asciidoc3_file)
+        if os.path.splitext(self.asciidoc3_file)[1].lower() == '.xml':
+            self.skip_asciidoc3 = True
         else:
-            self.skip_asciidoc = False
+            self.skip_asciidoc3 = False
         if not self.destination_dir:
-            self.destination_dir = os.path.dirname(self.asciidoc_file)
+            self.destination_dir = os.path.dirname(self.asciidoc3_file)
         else:
             if not os.path.isdir(self.destination_dir):
                 die('missing --destination-dir: %s' % self.destination_dir)
             self.destination_dir = os.path.abspath(self.destination_dir)
-            if not self.format in ('chunked','epub','htmlhelp','xhtml'):
+            if not self.format in ('chunked', 'epub', 'htmlhelp', 'xhtml'):
                 warning('--destination-dir option is only applicable to HTML based outputs')
         self.resource_dirs = []
         self.resource_files = []
@@ -482,9 +499,9 @@ class A2X(AttrDict):
                 mimetypes.add_type(mimetype, ext)
             else:
                 self.resource_files.append(r)
-        for p in (os.path.dirname(self.asciidoc), CONF_DIR):
-            for d in ('images','stylesheets'):
-                d = os.path.join(p,d)
+        for p in (os.path.dirname(self.asciidoc3), CONF_DIR):
+            for d in ('images', 'stylesheets'):
+                d = os.path.join(p, d)
                 if os.path.isdir(d):
                     self.resource_dirs.append(d)
         verbose('resource files: %s' % self.resource_files)
@@ -492,12 +509,12 @@ class A2X(AttrDict):
         if not self.doctype and self.format == 'manpage':
             self.doctype = 'manpage'
         if self.doctype:
-            self.asciidoc_opts += ' --doctype %s' % self.doctype
+            self.asciidoc3_opts += ' --doctype %s' % self.doctype
         for attr in self.attributes:
-            self.asciidoc_opts += ' --attribute "%s"' % attr
+            self.asciidoc3_opts += ' --attribute "%s"' % attr
 #        self.xsltproc_opts += ' --nonet'
         if self.verbose:
-            self.asciidoc_opts += ' --verbose'
+            self.asciidoc3_opts += ' --verbose'
             self.dblatex_opts += ' -V'
         if self.icons or self.icons_dir:
             params = [
@@ -539,24 +556,24 @@ class A2X(AttrDict):
     def dst_path(self, ext):
         '''
         Return name of file or directory in the destination directory with
-        the same name as the asciidoc source file but with extension ext.
+        the same name as the asciidoc3 source file but with extension ext.
         '''
         return os.path.join(self.destination_dir, self.basename(ext))
 
     def basename(self, ext):
         '''
-        Return the base name of the asciidoc source file but with extension
+        Return the base name of the asciidoc3 source file but with extension
         ext.
         '''
-        return os.path.basename(os.path.splitext(self.asciidoc_file)[0]) + ext
+        return os.path.basename(os.path.splitext(self.asciidoc3_file)[0]) + ext
 
-    def asciidoc_conf_file(self, path):
+    def asciidoc3_conf_file(self, path):
         '''
-        Return full path name of file in asciidoc configuration files directory.
-        Search first the directory containing the asciidoc executable then
+        Return full path name of file in asciidoc3 configuration files directory.
+        Search first the directory containing the asciidoc3 executable then
         the global configuration file directory.
         '''
-        f = os.path.join(os.path.dirname(self.asciidoc), path)
+        f = os.path.join(os.path.dirname(self.asciidoc3), path)
         if not os.path.isfile(f):
             f = os.path.join(CONF_DIR, path)
             if not os.path.isfile(f):
@@ -565,7 +582,7 @@ class A2X(AttrDict):
 
     def xsl_stylesheet(self, file_name=None):
         '''
-        Return full path name of file in asciidoc docbook-xsl configuration
+        Return full path name of file in asciidoc3 docbook-xsl configuration
         directory.
         If an XSL file was specified with the --xsl-file option then it is
         returned.
@@ -574,7 +591,7 @@ class A2X(AttrDict):
             return self.xsl_file
         if not file_name:
             file_name = self.format + '.xsl'
-        return self.asciidoc_conf_file(os.path.join('docbook-xsl', file_name))
+        return self.asciidoc3_conf_file(os.path.join('docbook-xsl', file_name))
 
     def copy_resources(self, html_files, src_dir, dst_dir, resources=[]):
         '''
@@ -586,12 +603,13 @@ class A2X(AttrDict):
         Optional additional resources files can be passed in the resources list.
         '''
         resources = resources[:]
+        # added in a2x3.py / AsciiDoc3:
+        # see hints in docstring of function 'def find_resources()'
         resources += find_resources(html_files, 'link', 'href',
-                        lambda attrs: attrs.get('type') == 'text/css')
+                                    lambda attrs: attrs.get('type') == 'text/css')
         resources += find_resources(html_files, 'img', 'src')
         resources += self.resource_files
-        resources = list(set(resources))    # Drop duplicates.
-        resources.sort()
+        resources = sorted(set(resources))    # Drop duplicates.
         for f in resources:
             if '=' in f:
                 src, dst = f.split('=')
@@ -626,25 +644,25 @@ class A2X(AttrDict):
 
     def to_backend(self):
         '''
-        Convert AsciiDoc source file to a backend output file using the global
-        'to_<backend name>' function (loaded from backend plugin a2x-backend.py
+        Convert AsciiDoc3 source file to a backend output file using the global
+        'to_<backend name>' function (loaded from backend plugin a2x3-backend.py
         file).
-        Executes the global function in an A2X class instance context.
+        Executes the global function in an A2X3 class instance context.
         '''
         eval('to_%s(self)' % self.backend)
 
     def to_docbook(self):
         '''
-        Use asciidoc to convert asciidoc_file to DocBook.
-        args is a string containing additional asciidoc arguments.
+        Use asciidoc3 to convert asciidoc3_file to DocBook.
+        args is a string containing additional asciidoc3 arguments.
         '''
         docbook_file = self.dst_path('.xml')
-        if self.skip_asciidoc:
+        if self.skip_asciidoc3:
             if not os.path.isfile(docbook_file):
                 die('missing docbook file: %s' % docbook_file)
             return
-        shell('"%s" --backend docbook -a "a2x-format=%s" %s --out-file "%s" "%s"' %
-             (self.asciidoc, self.format, self.asciidoc_opts, docbook_file, self.asciidoc_file))
+        shell('"%s" --backend docbook -a "a2x3-format=%s" %s --out-file "%s" "%s"' %
+              (self.asciidoc3, self.format, self.asciidoc3_opts, docbook_file, self.asciidoc3_file))
         if not self.no_xmllint and XMLLINT:
             shell('"%s" --nonet --noout --valid "%s"' % (XMLLINT, docbook_file))
 
@@ -654,7 +672,7 @@ class A2X(AttrDict):
         xhtml_file = self.dst_path('.html')
         opts = '%s --output "%s"' % (self.xsltproc_opts, xhtml_file)
         exec_xsltproc(self.xsl_stylesheet(), docbook_file, self.destination_dir, opts)
-        src_dir = os.path.dirname(self.asciidoc_file)
+        src_dir = os.path.dirname(self.asciidoc3_file)
         self.copy_resources(xhtml_file, src_dir, self.destination_dir)
 
     def to_manpage(self):
@@ -684,10 +702,10 @@ class A2X(AttrDict):
     def exec_dblatex(self):
         self.to_docbook()
         docbook_file = self.dst_path('.xml')
-        xsl = self.asciidoc_conf_file(os.path.join('dblatex','asciidoc-dblatex.xsl'))
-        sty = self.asciidoc_conf_file(os.path.join('dblatex','asciidoc-dblatex.sty'))
+        xsl = self.asciidoc3_conf_file(os.path.join('dblatex', 'asciidoc3-dblatex.xsl'))
+        sty = self.asciidoc3_conf_file(os.path.join('dblatex', 'asciidoc3-dblatex.sty'))
         shell('"%s" -t %s -p "%s" -s "%s" %s "%s"' %
-             (DBLATEX, self.format, xsl, sty, self.dblatex_opts, docbook_file))
+              (DBLATEX, self.format, xsl, sty, self.dblatex_opts, docbook_file))
 
     def to_dvi(self):
         self.exec_dblatex()
@@ -710,14 +728,14 @@ class A2X(AttrDict):
             dst_dir = self.dst_path('.chunked')
         elif self.format == 'htmlhelp':
             dst_dir = self.dst_path('.htmlhelp')
-        if not 'base.dir ' in opts:
+        if 'base.dir ' not in opts:
             opts += ' --stringparam base.dir "%s/"' % os.path.basename(dst_dir)
         # Create content.
         shell_rmtree(dst_dir)
         shell_makedirs(dst_dir)
         exec_xsltproc(xsl_file, docbook_file, self.destination_dir, opts)
         html_files = find_files(dst_dir, '*.html')
-        src_dir = os.path.dirname(self.asciidoc_file)
+        src_dir = os.path.dirname(self.asciidoc3_file)
         self.copy_resources(html_files, src_dir, dst_dir)
 
     def update_epub_manifest(self, opf_file):
@@ -727,9 +745,9 @@ class A2X(AttrDict):
         '''
         opf_dir = os.path.dirname(opf_file)
         resource_files = []
-        for (p,dirs,files) in os.walk(os.path.dirname(opf_file)):
+        for (p, dirs, files) in os.walk(os.path.dirname(opf_file)):
             for f in files:
-                f = os.path.join(p,f)
+                f = os.path.join(p, f)
                 if os.path.isfile(f):
                     assert f.startswith(opf_dir)
                     f = '.' + f[len(opf_dir):]
@@ -772,7 +790,7 @@ class A2X(AttrDict):
         # Copy resources referenced in the OPF and resources referenced by the
         # generated HTML (in theory DocBook XSL should ensure they are
         # identical but this is not always the case).
-        src_dir = os.path.dirname(self.asciidoc_file)
+        src_dir = os.path.dirname(self.asciidoc3_file)
         dst_dir = os.path.join(build_dir, 'OEBPS')
         opf_file = os.path.join(dst_dir, 'content.opf')
         opf_resources = find_resources(opf_file, 'item', 'href')
@@ -792,9 +810,9 @@ class A2X(AttrDict):
                     write_file('mimetype', 'application/epub+zip')
                     zip.write('mimetype', compress_type=zipfile.ZIP_STORED)
                     # Compress all remaining files.
-                    for (p,dirs,files) in os.walk('.'):
+                    for (p, dirs, files) in os.walk('.'):
                         for f in files:
-                            f = os.path.normpath(os.path.join(p,f))
+                            f = os.path.normpath(os.path.join(p, f))
                             if f != 'mimetype':
                                 verbose('archiving: %s' % f)
                                 zip.write(f, compress_type=zipfile.ZIP_DEFLATED)
@@ -815,20 +833,20 @@ class A2X(AttrDict):
         text_file = self.dst_path('.text')
         html_file = self.dst_path('.text.html')
         if self.lynx:
-            shell('"%s" %s --conf-file "%s" -b html4 -a "a2x-format=%s" -o "%s" "%s"' %
-                 (self.asciidoc, self.asciidoc_opts, self.asciidoc_conf_file('text.conf'),
-                  self.format, html_file, self.asciidoc_file))
+            shell('"%s" %s --conf-file "%s" -b html4 -a "a2x3-format=%s" -o "%s" "%s"' %
+                  (self.asciidoc3, self.asciidoc3_opts, self.asciidoc3_conf_file('text.conf'),
+                   self.format, html_file, self.asciidoc3_file))
             shell('"%s" -dump "%s" > "%s"' %
-                 (LYNX, html_file, text_file))
+                  (LYNX, html_file, text_file))
         else:
             # Use w3m(1).
             self.to_docbook()
             docbook_file = self.dst_path('.xml')
             opts = '%s --output "%s"' % (self.xsltproc_opts, html_file)
             exec_xsltproc(self.xsl_stylesheet(), docbook_file,
-                    self.destination_dir, opts)
+                          self.destination_dir, opts)
             shell('"%s" -cols 70 -dump -T text/html -no-graph "%s" > "%s"' %
-                 (W3M, html_file, text_file))
+                  (W3M, html_file, text_file))
         if not self.keep_artifacts:
             shell_rm(html_file)
 
@@ -838,106 +856,108 @@ class A2X(AttrDict):
 #####################################################################
 
 if __name__ == '__main__':
-    description = '''A toolchain manager for AsciiDoc (converts Asciidoc text files to other file formats)'''
+    description = '''A toolchain manager for AsciiDoc3
+                     (converts Asciidoc3 text files to other file formats)'''
     from optparse import OptionParser
     parser = OptionParser(usage='usage: %prog [OPTIONS] SOURCE_FILE',
-        version='%s %s' % (PROG,VERSION),
-        description=description)
+                          version='%s %s' % (PROG, VERSION),
+                          description=description)
     parser.add_option('-a', '--attribute',
-        action='append', dest='attributes', default=[], metavar='ATTRIBUTE',
-        help='set asciidoc attribute value')
-    parser.add_option('--asciidoc-opts',
-        action='append', dest='asciidoc_opts', default=[],
-        metavar='ASCIIDOC_OPTS', help='asciidoc options')
+                      action='append', dest='attributes', default=[], metavar='ATTRIBUTE',
+                      help='set asciidoc3 attribute value')
+    parser.add_option('--asciidoc3-opts',
+                      action='append', dest='asciidoc3_opts', default=[],
+                      metavar='ASCIIDOC3_OPTS', help='asciidoc3 options')
     #DEPRECATED
     parser.add_option('--copy',
-        action='store_true', dest='copy', default=False,
-        help='DEPRECATED: does nothing')
+                      action='store_true', dest='copy', default=False,
+                      help='DEPRECATED: does nothing')
     parser.add_option('--conf-file',
-        dest='conf_file', default=None, metavar='CONF_FILE',
-        help='configuration file')
+                      dest='conf_file', default=None, metavar='CONF_FILE',
+                      help='configuration file')
     parser.add_option('-D', '--destination-dir',
-        action='store', dest='destination_dir', default=None, metavar='PATH',
-        help='output directory (defaults to SOURCE_FILE directory)')
-    parser.add_option('-d','--doctype',
-        action='store', dest='doctype', metavar='DOCTYPE',
-        choices=('article','manpage','book'),
-        help='article, manpage, book')
-    parser.add_option('-b','--backend',
-        action='store', dest='backend', metavar='BACKEND',
-        help='name of backend plugin')
+                      action='store', dest='destination_dir', default=None,
+                      metavar='PATH',
+                      help='output directory (defaults to SOURCE_FILE directory)')
+    parser.add_option('-d', '--doctype',
+                      action='store', dest='doctype', metavar='DOCTYPE',
+                      choices=('article', 'manpage', 'book'),
+                      help='article, manpage, book')
+    parser.add_option('-b', '--backend',
+                      action='store', dest='backend', metavar='BACKEND',
+                      help='name of backend plugin')
     parser.add_option('--epubcheck',
-        action='store_true', dest='epubcheck', default=False,
-        help='check EPUB output with epubcheck')
-    parser.add_option('-f','--format',
-        action='store', dest='format', metavar='FORMAT', default = 'pdf',
-        choices=('chunked','epub','htmlhelp','manpage','pdf', 'text',
-                 'xhtml','dvi','ps','tex','docbook'),
-        help='chunked, epub, htmlhelp, manpage, pdf, text, xhtml, dvi, ps, tex, docbook')
+                      action='store_true', dest='epubcheck', default=False,
+                      help='check EPUB output with epubcheck')
+    parser.add_option('-f', '--format',
+                      action='store', dest='format', metavar='FORMAT', default='pdf',
+                      choices=('chunked', 'epub', 'htmlhelp', 'manpage', 'pdf', 'text',
+                               'xhtml', 'dvi', 'ps', 'tex', 'docbook'),
+                      help='chunked, epub, htmlhelp, manpage, pdf, text, xhtml, dvi, ps, tex, docbook')
     parser.add_option('--icons',
-        action='store_true', dest='icons', default=False,
-        help='use admonition, callout and navigation icons')
+                      action='store_true', dest='icons', default=False,
+                      help='use admonition, callout and navigation icons')
     parser.add_option('--icons-dir',
-        action='store', dest='icons_dir',
-        default=None, metavar='PATH',
-        help='admonition and navigation icon directory')
+                      action='store', dest='icons_dir',
+                      default=None, metavar='PATH',
+                      help='admonition and navigation icon directory')
     parser.add_option('-k', '--keep-artifacts',
-        action='store_true', dest='keep_artifacts', default=False,
-        help='do not delete temporary build files')
+                      action='store_true', dest='keep_artifacts', default=False,
+                      help='do not delete temporary build files')
     parser.add_option('--lynx',
-        action='store_true', dest='lynx', default=False,
-        help='use lynx to generate text files')
+                      action='store_true', dest='lynx', default=False,
+                      help='use lynx to generate text files')
     parser.add_option('-L', '--no-xmllint',
-        action='store_true', dest='no_xmllint', default=False,
-        help='do not check asciidoc output with xmllint')
-    parser.add_option('-n','--dry-run',
-        action='store_true', dest='dry_run', default=False,
-        help='just print the commands that would have been executed')
-    parser.add_option('-r','--resource',
-        action='append', dest='resources', default=[],
-        metavar='PATH',
-        help='resource file or directory containing resource files')
+                      action='store_true', dest='no_xmllint', default=False,
+                      help='do not check asciidoc3 output with xmllint')
+    parser.add_option('-n', '--dry-run',
+                      action='store_true', dest='dry_run', default=False,
+                      help='just print the commands that would have been executed')
+    parser.add_option('-r', '--resource',
+                      action='append', dest='resources', default=[],
+                      metavar='PATH',
+                      help='resource file or directory containing resource files')
     parser.add_option('-m', '--resource-manifest',
-        action='store', dest='resource_manifest', default=None, metavar='FILE',
-        help='read resources from FILE')
+                      action='store', dest='resource_manifest', default=None, metavar='FILE',
+                      help='read resources from FILE')
     #DEPRECATED
     parser.add_option('--resource-dir',
-        action='append', dest='resources', default=[],
-        metavar='PATH',
-        help='DEPRECATED: use --resource')
+                      action='append', dest='resources', default=[],
+                      metavar='PATH',
+                      help='DEPRECATED: use --resource')
     #DEPRECATED
-    parser.add_option('-s','--skip-asciidoc',
-        action='store_true', dest='skip_asciidoc', default=False,
-        help='DEPRECATED: redundant')
+    parser.add_option('-s', '--skip-asciidoc3',
+                      action='store_true', dest='skip_asciidoc3', default=False,
+                      help='DEPRECATED: redundant')
     parser.add_option('--stylesheet',
-        action='store', dest='stylesheet', default=None,
-        metavar='STYLESHEET',
-        help='HTML CSS stylesheet file name')
+                      action='store', dest='stylesheet', default=None,
+                      metavar='STYLESHEET',
+                      help='HTML CSS stylesheet file name')
     #DEPRECATED
     parser.add_option('--safe',
-        action='store_true', dest='safe', default=False,
-        help='DEPRECATED: does nothing')
+                      action='store_true', dest='safe', default=False,
+                      help='DEPRECATED: does nothing')
     parser.add_option('--dblatex-opts',
-        action='append', dest='dblatex_opts', default=[],
-        metavar='DBLATEX_OPTS', help='dblatex options')
+                      action='append', dest='dblatex_opts', default=[],
+                      metavar='DBLATEX_OPTS', help='dblatex options')
     parser.add_option('--backend-opts',
-        action='append', dest='backend_opts', default=[],
-        metavar='BACKEND_OPTS', help='backend plugin options')
+                      action='append', dest='backend_opts', default=[],
+                      metavar='BACKEND_OPTS', help='backend plugin options')
     parser.add_option('--fop',
-        action='store_true', dest='fop', default=False,
-        help='use FOP to generate PDF files')
+                      action='store_true', dest='fop', default=False,
+                      help='use FOP to generate PDF files')
     parser.add_option('--fop-opts',
-        action='append', dest='fop_opts', default=[],
-        metavar='FOP_OPTS', help='options for FOP pdf generation')
+                      action='append', dest='fop_opts', default=[],
+                      metavar='FOP_OPTS', help='options for FOP pdf generation')
     parser.add_option('--xsltproc-opts',
-        action='append', dest='xsltproc_opts', default=[],
-        metavar='XSLTPROC_OPTS', help='xsltproc options for XSL stylesheets')
+                      action='append', dest='xsltproc_opts', default=[],
+                      metavar='XSLTPROC_OPTS', help='xsltproc options for XSL stylesheets')
     parser.add_option('--xsl-file',
-        action='store', dest='xsl_file', metavar='XSL_FILE',
-        help='custom XSL stylesheet')
+                      action='store', dest='xsl_file', metavar='XSL_FILE',
+                      help='custom XSL stylesheet')
     parser.add_option('-v', '--verbose',
-        action='count', dest='verbose', default=0,
-        help='increase verbosity')
+                      action='count', dest='verbose', default=0,
+                      help='increase verbosity')
     if len(sys.argv) == 1:
         parser.parse_args(['--help'])
     source_options = get_source_options(sys.argv[-1])
@@ -945,18 +965,19 @@ if __name__ == '__main__':
     opts, args = parser.parse_args(argv)
     if len(args) != 1:
         parser.error('incorrect number of arguments')
-    opts.asciidoc_opts = ' '.join(opts.asciidoc_opts)
+    opts.asciidoc3_opts = ' '.join(opts.asciidoc3_opts)
     opts.dblatex_opts = ' '.join(opts.dblatex_opts)
     opts.fop_opts = ' '.join(opts.fop_opts)
     opts.xsltproc_opts = ' '.join(opts.xsltproc_opts)
     opts.backend_opts = ' '.join(opts.backend_opts)
     opts = eval(str(opts))  # Convert optparse.Values to dict.
-    a2x = A2X(opts)
-    OPTIONS = a2x           # verbose and dry_run used by utility functions.
+    a2x3 = A2X3(opts)
+    OPTIONS = a2x3          # verbose and dry_run used by utility functions.
     verbose('args: %r' % argv)
-    a2x.asciidoc_file = args[0]
+    a2x3.asciidoc3_file = args[0]
     try:
-        a2x.load_conf()
-        a2x.execute()
+        a2x3.load_conf()
+        a2x3.execute()
     except KeyboardInterrupt:
         exit(1)
+            
