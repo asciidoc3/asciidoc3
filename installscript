@@ -1,0 +1,439 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import shutil
+
+
+"""Script to install 'AsciiDoc3'. Works with POSIX systems
+   like Unix, GNU/Linux, and BSD ... Running with 'superuser'
+   rights (root) required (sudo/su)!
+   The new directories and executables will have permissions
+   0o755, new files 0o644.
+   Fat32, fat16, vfat formatted partitions do _NOT_
+   support symlinks: So you better do not use them or add
+   the files as hardlinks/file-copies manually.
+   """
+
+if os.name != 'posix':
+    print("FATAL: platform is *not* POSIX!")
+    sys.exit(1)
+
+# copy files to '/usr/share/asciidoc3'
+# except 'stylesheets -> /etc/asciidoc3/stylesheets'
+# because symlink src has to exist before creating
+if not os.access("/usr/share", os.F_OK | os.W_OK):
+    print("no access to /usr/share")
+    print("are you root?")
+    sys.exit(1)
+
+if os.path.isdir("/usr/share/asciidoc3"):
+    if not os.access("/usr/share/asciidoc3", os.F_OK | os.W_OK):
+        print("no access to /usr/share/asciidoc3")
+        sys.exit(1)
+else:
+    os.mkdir("/usr/share/asciidoc3")
+os.chmod("/usr/share/asciidoc3", 0o755)
+# '/usr/share/asciidoc3' exists and is writable
+
+# copy asciidoc3api.py
+try:
+    shutil.copyfile("asciidoc3api.py", "/usr/share/asciidoc3/asciidoc3api.py")
+    os.chmod("/usr/share/asciidoc3/asciidoc3api.py", 0o644)
+except (OSError, PermissionError):
+    print("no access to /usr/share/asciidoc3")
+    sys.exit(1)
+
+# make subdirectories in '/usr/share/asciidoc3'
+usr_sub = ("icons",
+           "icons/callouts",
+           "images",
+           "javascripts")
+try:
+    for item in usr_sub:
+        if not os.access("/usr/share/asciidoc3/"+item, os.F_OK):
+            os.mkdir("/usr/share/asciidoc3/"+item+"/", 0o755)
+except (OSError, PermissionError):
+    print("no access to /usr/share/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/usr/share/asciidoc3/icons'
+icons_files = ("caution.png",
+               "example.png",
+               "home.png",
+               "important.png",
+               "next.png",
+               "note.png",
+               "prev.png",
+               "README",
+               "tip.png",
+               "up.png",
+               "warning.png")
+
+try:
+    for item in icons_files:
+        shutil.copyfile("./images/icons/"+item, "/usr/share/asciidoc3/icons/"+item)
+        os.chmod("/usr/share/asciidoc3/icons/"+item, 0o644)
+except (OSError, PermissionError):
+    print("no access to /usr/share/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/usr/share/asciidoc3/icons/callouts'
+callout_files = ("10.png",
+                 "11.png",
+                 "12.png",
+                 "13.png",
+                 "14.png",
+                 "15.png",
+                 "1.png",
+                 "2.png",
+                 "3.png",
+                 "4.png",
+                 "5.png",
+                 "6.png",
+                 "7.png",
+                 "8.png",
+                 "9.png")
+
+try:
+    for item in callout_files:
+        shutil.copyfile("images/icons/callouts/"+item, "/usr/share/asciidoc3/icons/callouts/"+item)
+        os.chmod("/usr/share/asciidoc3/icons/callouts/"+item, 0o644)
+        #print(item)
+except (OSError, PermissionError):
+    print("no access to /usr/share/asciidoc3")
+    sys.exit(1)
+
+# make symlink src -> dst: 'icons' -> '../icons'
+try:
+    if os.access("/usr/share/asciidoc3/images/icons", os.F_OK | os.R_OK | os.W_OK):
+        os.remove("/usr/share/asciidoc3/images/icons")
+    os.symlink("../icons", "/usr/share/asciidoc3/images/icons")
+    os.chmod("/usr/share/asciidoc3/images/icons", 0o755)
+except (OSError, PermissionError):
+    print("no access to /usr/share/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/usr/share/asciidoc3/javascripts'
+js_files = ("asciidoc3.js",
+            "ASCIIMathML.js",
+            "LaTeXMathML.js",
+            "slidy.js",
+            "toc.js")
+
+try:
+    for item in js_files:
+        shutil.copyfile("./javascripts/"+item, "/usr/share/asciidoc3/javascripts/"+item)
+        os.chmod("/usr/share/asciidoc3/javascripts/"+item, 0o644)
+except (OSError, PermissionError):
+    print("no access to /usr/share/asciidoc3")
+    sys.exit(1)
+# End /usr/share/asciidoc3 (except symlink '/usr/share/asciidoc/stylesheets')
+
+
+# asciidoc3.py -> /usr/bin/asciidoc3
+if not os.access("/usr/bin/", os.F_OK | os.W_OK):
+    print("No access to '/usr/bin'! Try sudo/su")
+    sys.exit(1)
+
+try:
+    shutil.copyfile("asciidoc3.py", "/usr/bin/asciidoc3")
+    os.chmod("/usr/bin/asciidoc3", 0o755)
+except (OSError, PermissionError):
+    print("No access to '/usr/bin'! Try sudo/su")
+    sys.exit(1)
+# End /usr/bin/asciidoc3
+
+# directory /etc/asciidoc3/
+if not os.access("/etc", os.F_OK | os.W_OK):
+    print("no access to /etc")
+    sys.exit(1)
+
+if os.path.isdir("/etc/asciidoc3"):
+    if not os.access("/etc/asciidoc3", os.F_OK | os.W_OK):
+        print("no access to /etc/asciidoc3")
+        sys.exit(1)
+else:
+    os.mkdir("/etc/asciidoc3/")
+os.chmod("/etc/asciidoc3/", 0o755)
+# 'etc/asciidoc3' exists and is writable
+
+# copy files to '/etc/asciidoc3'
+etc_files = ("asciidoc3.conf",
+             "docbook45.conf",
+             "help.conf",
+             "html4.conf",
+             "html5.conf",
+             "lang-cs.conf",
+             "lang-de.conf",
+             "lang-el.conf",
+             "lang-en.conf",
+             "lang-es.conf",
+             "lang-fr.conf",
+             "lang-hu.conf",
+             "lang-it.conf",
+             "lang-nl.conf",
+             "lang-pt-BR.conf",
+             "lang-ro.conf",
+             "lang-ru.conf",
+             "lang-uk.conf",
+             "latex.conf",
+             "slidy.conf",
+             "text.conf",
+             "xhtml11.conf")
+
+try:
+    for item in etc_files:
+        shutil.copyfile(item, "/etc/asciidoc3/"+item)
+        os.chmod("/etc/asciidoc3/"+item, 0o644)
+        #print(item)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# make subdirectories in '/etc/asciidoc3'
+etc_sub = ("data",
+           "dblatex",
+           "docbook-xsl",
+           "filters",
+           "filters/code",
+           "filters/graphviz",
+           "filters/latex",
+           "filters/music",
+           "filters/source",
+           "stylesheets",
+           "themes",
+           "themes/flask",
+           "themes/volnitsky")
+try:
+    for item in etc_sub:
+        if not os.access("/etc/asciidoc3/"+item, os.F_OK):
+            os.mkdir("/etc/asciidoc3/"+item+"/", 0o755)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# make symlink: images -> /usr/share/asciidoc3/images
+try:
+    if os.access("/etc/asciidoc3/images", os.F_OK | os.R_OK | os.W_OK):
+        os.remove("/etc/asciidoc3/images")
+    os.symlink("/usr/share/asciidoc3/images", "/etc/asciidoc3/images")
+    os.chmod("/etc/asciidoc3/images", 0o755)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# make symlink: javascripts -> /usr/share/asciidoc3/javascripts
+try:
+    if os.access("/etc/asciidoc3/javascripts", os.F_OK | os.R_OK | os.W_OK):
+        os.remove("/etc/asciidoc3/javascripts")
+    os.symlink("/usr/share/asciidoc3/javascripts", "/etc/asciidoc3/javascripts")
+    os.chmod("/etc/asciidoc3/javascripts", 0o755)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/etc/asciidoc3/data'
+etcdata_files = ("deprecated-quotes.txt",
+                 "filters-test.txt",
+                 "lang-cs-man-test.txt",
+                 "lang-cs-test.txt",
+                 "lang-de-man-test.txt",
+                 "lang-de-test.txt",
+                 "lang-en-man-test.txt",
+                 "lang-en-test.txt",
+                 "lang-es-man-test.txt",
+                 "lang-es-test.txt",
+                 "lang-fr-man-test.txt",
+                 "lang-fr-test.txt",
+                 "lang-hu-man-test.txt",
+                 "lang-hu-test.txt",
+                 "lang-it-man-test.txt",
+                 "lang-it-test.txt",
+                 "lang-nl-man-test.txt",
+                 "lang-nl-test.txt",
+                 "lang-pt-BR-man-test.txt",
+                 "lang-pt-BR-test.txt",
+                 "lang-ro-man-test.txt",
+                 "lang-ro-test.txt",
+                 "lang-ru-man-test.txt",
+                 "lang-ru-test.txt",
+                 "lang-uk-man-test.txt",
+                 "lang-uk-test.txt",
+                 "oldtables.txt",
+                 "open-block-test.txt",
+                 "rcs-id-marker-test.txt",
+                 "testcases.conf",
+                 "testcases.txt",
+                 "utf8-bom-test.txt",
+                 "utf8-examples.txt")
+
+try:
+    for item in etcdata_files:
+        shutil.copyfile("tests/data/"+item, "/etc/asciidoc3/data/"+item)
+        os.chmod("/etc/asciidoc3/data/"+item, 0o644)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/etc/asciidoc3/dblatex'
+etc_files = ("asciidoc3-dblatex.sty",
+             "asciidoc3-dblatex.xsl",
+             "dblatex-readme.txt")
+
+try:
+    for item in etc_files:
+        shutil.copyfile("dblatex/"+item, "/etc/asciidoc3/dblatex/"+item)
+        os.chmod("/etc/asciidoc3/dblatex/"+item, 0o644)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/etc/asciidoc3/docbook-xsl'
+etc_files = ("asciidoc3-docbook-xsl.txt",
+             "chunked.xsl",
+             "common.xsl",
+             "epub.xsl",
+             "fo.xsl",
+             "htmlhelp.xsl",
+             "manpage.xsl",
+             "text.xsl",
+             "xhtml.xsl")
+
+try:
+    for item in etc_files:
+        shutil.copyfile("docbook-xsl/"+item, "/etc/asciidoc3/docbook-xsl/"+item)
+        os.chmod("/etc/asciidoc3/docbook-xsl/"+item, 0o644)
+        #print(item)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+
+# copy files to '/etc/asciidoc3/filters/code'
+etc_files = ("code-filter.conf",
+             "code-filter.py",
+             "code-filter-readme.txt",
+             "code-filter-test.txt")
+
+try:
+    for item in etc_files:
+        shutil.copyfile("filters/code/"+item, "/etc/asciidoc3/filters/code/"+item)
+        os.chmod("/etc/asciidoc3/filters/code/"+item, 0o644)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/etc/asciidoc3/filters/graphviz'
+etc_files = ("asciidoc3-graphviz-sample.txt",
+             "graphviz2png.py",
+             "graphviz-filter.conf")
+
+try:
+    for item in etc_files:
+        shutil.copyfile("filters/graphviz/"+item, "/etc/asciidoc3/filters/graphviz/"+item)
+        os.chmod("/etc/asciidoc3/filters/graphviz/"+item, 0o644)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/etc/asciidoc3/filters/latex'
+etc_files = ("latex2png.py",
+             "latex-filter.conf")
+
+try:
+    for item in etc_files:
+        shutil.copyfile("filters/latex/"+item, "/etc/asciidoc3/filters/latex/"+item)
+        os.chmod("/etc/asciidoc3/filters/latex/"+item, 0o644)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/etc/asciidoc3/filters/music'
+etc_files = ("music2png.py",
+             "music-filter.conf",
+             "music-filter-test.txt")
+
+try:
+    for item in etc_files:
+        shutil.copyfile("filters/music/"+item, "/etc/asciidoc3/filters/music/"+item)
+        os.chmod("/etc/asciidoc3/filters/music/"+item, 0o644)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/etc/asciidoc3/filters/source'
+etc_files = ("source-highlight-filter.conf",
+             "source-highlight-filter-test.txt")
+
+try:
+    for item in etc_files:
+        shutil.copyfile("filters/source/"+item, "/etc/asciidoc3/filters/source/"+item)
+        os.chmod("/etc/asciidoc3/filters/source/"+item, 0o644)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# copy files to '/etc/asciidoc3/stylesheets'
+etc_files = ("asciidoc3.css",
+             "docbook-xsl.css",
+             "pygments.css",
+             "slidy.css",
+             "toc2.css")
+
+try:
+    for item in etc_files:
+        shutil.copyfile("stylesheets/"+item, "/etc/asciidoc3/stylesheets/"+item)
+        os.chmod("/etc/asciidoc3/stylesheets/"+item, 0o644)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# copy files to 'themes'
+try:
+    shutil.copyfile("themes/flask/flask.css", "/etc/asciidoc3/themes/flask/flask.css")
+    os.chmod("/etc/asciidoc3/themes/flask/flask.css", 0o644)
+
+    shutil.copyfile("themes/volnitsky/volnitsky.css", \
+                    "/etc/asciidoc3/themes/volnitsky/volnitsky.css")
+    os.chmod("/etc/asciidoc3/themes/volnitsky/volnitsky.css", 0o644)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# make symlink: /usr/share/asciidoc3/stylesheets -> /etc/asciidoc3/stylesheets
+try:
+    if os.access("/usr/share/asciidoc3/stylesheets", os.F_OK | os.R_OK | os.W_OK):
+        os.remove("/usr/share/asciidoc3/stylesheets")
+    os.symlink("/etc/asciidoc3/stylesheets", "/usr/share/asciidoc3/stylesheets")
+    os.chmod("/usr/share/asciidoc3/stylesheets", 0o755)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3")
+    sys.exit(1)
+
+# copy 'testasciidoc3.conf'
+try:
+    shutil.copyfile("tests/testasciidoc3.conf", "/etc/asciidoc3/testasciidoc3.conf")
+    os.chmod("/etc/asciidoc3/testasciidoc3.conf", 0o644)
+except (OSError, PermissionError):
+    print("no access to /etc/asciidoc3/")
+    sys.exit(1)
+
+# copy 'manpages' to 'man1'
+try:
+    shutil.copyfile("doc/asciidoc3.1.gz", "/usr/share/man/man1/asciidoc3.1.gz")
+    os.chmod("/usr/share/man/man1/asciidoc3.1.gz", 0o644)
+
+    shutil.copyfile("doc/a2x3.1.gz", "/usr/share/man/man1/a2x3.1.gz")
+    os.chmod("/usr/share/man/man1/a2x3.1.gz", 0o644)
+except (OSError, PermissionError):
+    print("usr/share/man/man1/")
+    sys.exit(1)
+
+# copy 'a2x3.py' to '/usr/bin/a2x3'
+try:
+    shutil.copyfile("a2x3.py", "/usr/bin/a2x3")
+    os.chmod("/usr/bin/a2x3", 0o755)
+except (OSError, PermissionError):
+    print("/usr/bin/")
+    sys.exit(1)
