@@ -1,0 +1,35 @@
+AsciiDoc3 ChangeLog
+===================
+
+website: https://asciidoc3.org/
+
+
+Version 3.0.1 (2018-05-16)
+
+
+Additions and changes
+- License changed from AGPLv3 to GPLv3
+- Typos, pylint messages edited in asciidoc3.py, a2x3.py, asciidoc3api.py
+- README(.txt) updated
+- doc/readme-doc.txt updated
+- INSTALL updated
+- installscript added
+- UNINSTALL, uninstallscript added
+- lang-fi.conf, lang-id.conf added
+- Vim syntax file added: ./vim/syntax/asciidoc3.vim
+- Vim syntax README file added ./vim/readme-vim.txt
+- Detailed description of the porting procedure: ./doc/asciidoc3port.txt
+- Documentation updates, typos
+- File BUGS.txt added
+- Files customers.csv, test.txt, userguide.txt move to ./doc
+- Reduce many file-permissions
+
+Bug fixes
+- None
+
+
+
+Version 3.0.1rc (2018-04-13)
+
+This is the first version (release canidate) of AsciiDoc3 using Python3.
+
