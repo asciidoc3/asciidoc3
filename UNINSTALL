@@ -1,0 +1,20 @@
+AsciiDoc3 Uninstall Readme
+
+Uninstall 'local' installation
+If you have AsciiDoc3 installed 'local' - that means, you have all files in one 
+directory (e.g., ~/asciidoc3) and never ran 'installscript'
+(you have used 'python3 asciidoc3.py -a toc -a icons -n mytext.txt' or so):
+just delete the directory '~/asciidoc3' (or wherever you have installed the distribution).
+
+
+Uninstall system wide installation
+If you ran the AsciiDoc3 'installscript' as root/superuser - that means, you have
+directories/files like '/etc/asciidoc3/*.*', '/usr/share/asciidoc3/*.*' et al.
+(you have used 'asciidoc3 -a toc -a icons -n mytext.txt' or so):
+1. make 'uninstallscript' executable: 'chmod u+x uninstallscript',
+2. 'su/sudo ./uninstallscript',
+3. delete your 'local' files, e.g. in '~/asciidoc3'.  
+
+
+
+
