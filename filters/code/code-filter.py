@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 NAME
-    code-filter - AsciiDoc filter to highlight language keywords
+    code-filter - AsciiDoc3 filter to highlight language keywords
 
 SYNOPSIS
     code-filter -b backend -l language [ -t tabsize ]
@@ -48,11 +48,13 @@ URLS
 COPYING
     Copyright (C) 2002-2006 Stuart Rackham. Free use of this software is
     granted under the terms of the GNU General Public License (GPL).
+    AsciiDoc3 (C) 2018 Berthold Gehrke. Free use of this software is
+    granted under the terms of the Affero GNU General Public License v3.
 '''
 
 import os, sys, re, string
 
-VERSION = '1.1.2'
+VERSION = '3.0.1'
 
 # Globals.
 language = None
@@ -60,23 +62,23 @@ backend = None
 tabsize = 8
 keywordtags = {
     'html':
-        ('<strong>','</strong>'),
+        ('<strong>', '</strong>'),
     'css':
-        ('<strong>','</strong>'),
+        ('<strong>', '</strong>'),
     'docbook':
-        ('<emphasis role="strong">','</emphasis>'),
+        ('<emphasis role="strong">', '</emphasis>'),
     'linuxdoc':
-        ('','')
+        ('', '')
 }
 commenttags = {
     'html':
-        ('<i>','</i>'),
+        ('<i>', '</i>'),
     'css':
-        ('<i>','</i>'),
+        ('<i>', '</i>'),
     'docbook':
-        ('<emphasis>','</emphasis>'),
+        ('<emphasis>', '</emphasis>'),
     'linuxdoc':
-        ('','')
+        ('', '')
 }
 keywords = {
     'python':
@@ -103,9 +105,9 @@ keywords = {
         'volatile', 'wchar_t', 'while')
 }
 block_comments = {
-    'python': ("'''","'''"),
+    'python': ("'''", "'''"),
     'ruby': None,
-    'c++': ('/*','*/')
+    'c++': ('/*', '*/')
 }
 inline_comments = {
     'python': '#',
@@ -120,7 +122,7 @@ def sub_keyword(mo):
     '''re.subs() argument to tag keywords.'''
     word = mo.group('word')
     if word in keywords[language]:
-        stag,etag = keywordtags[backend]
+        stag, etag = keywordtags[backend]
         return stag+word+etag
     else:
         return word
@@ -133,27 +135,33 @@ def code_filter():
     if blk_comment:
         blk_comment = (re.escape(block_comments[language][0]),
             re.escape(block_comments[language][1]))
-    stag,etag = commenttags[backend]
+    stag, etag = commenttags[backend]
     in_comment = 0  # True if we're inside a multi-line block comment.
     tag_comment = 0 # True if we should tag the current line as a comment.
     line = sys.stdin.readline()
     while line:
-        line = string.rstrip(line)
-        line = string.expandtabs(line,tabsize)
+        line = line.rstrip()
+        line = line.expandtabs(tabsize)
         # Escape special characters.
-        line = string.replace(line,'&','&amp;')
-        line = string.replace(line,'<','&lt;')
-        line = string.replace(line,'>','&gt;')
+        line = line.replace('&', '&amp;')
+        line = line.replace('<', '&lt;')
+        line = line.replace('>', '&gt;')
+##        line = string.rstrip(line)
+##        line = string.expandtabs(line, tabsize)
+##        # Escape special characters.
+##        line = string.replace(line, '&', '&amp;')
+##        line = string.replace(line, '<', '&lt;')
+##        line = string.replace(line, '>', '&gt;')
         # Process block comment.
         if blk_comment:
             if in_comment:
-                if re.match(r'.*'+blk_comment[1]+r'$',line):
+                if re.match(r'.*'+blk_comment[1]+r'$', line):
                     in_comment = 0
             else:
-                if re.match(r'^\s*'+blk_comment[0]+r'.*'+blk_comment[1],line):
+                if re.match(r'^\s*'+blk_comment[0]+r'.*'+blk_comment[1], line):
                     # Single line block comment.
                     tag_comment = 1
-                elif re.match(r'^\s*'+blk_comment[0],line):
+                elif re.match(r'^\s*'+blk_comment[0], line):
                     # Start of multi-line block comment.
                     tag_comment = 1
                     in_comment = 1
@@ -163,15 +171,15 @@ def code_filter():
             if line: line = stag+line+etag
         else:
             if inline_comment:
-                pos = string.find(line,inline_comment)
+                pos = line.find(inline_comment)
             else:
                 pos = -1
             if pos >= 0:
                 # Process inline comment.
-                line = re.sub(r'\b(?P<word>\w+)\b',sub_keyword,line[:pos]) \
+                line = re.sub(r'\b(?P<word>\w+)\b', sub_keyword, line[:pos]) \
                     + stag + line[pos:] + etag
             else:
-                line = re.sub(r'\b(?P<word>\w+)\b',sub_keyword,line)
+                line = re.sub(r'\b(?P<word>\w+)\b', sub_keyword, line)
         sys.stdout.write(line + os.linesep)
         line = sys.stdin.readline()
 
@@ -185,22 +193,22 @@ def main():
     global language, backend, tabsize
     # Process command line options.
     import getopt
-    opts,args = getopt.getopt(sys.argv[1:],
+    opts, args = getopt.getopt(sys.argv[1:],
         'b:l:ht:v',
-        ['help','version'])
+        ['help', 'version'])
     if len(args) > 0:
         usage()
         sys.exit(1)
-    for o,v in opts:
-        if o in ('--help','-h'):
-            print __doc__
+    for o, v in opts:
+        if o in ('--help', '-h'):
+            print(__doc__)
             sys.exit(0)
-        if o in ('--version','-v'):
-            print('code-filter version %s' % (VERSION,))
+        if o in ('--version', '-v'):
+            print(('code-filter version %s' % (VERSION,)))
             sys.exit(0)
         if o == '-b': backend = v
         if o == '-l':
-            v = string.lower(v)
+            v = v.lower()
             if v == 'c': v = 'c++'
             language = v
         if o == '-t':
@@ -215,13 +223,13 @@ def main():
     if backend is None:
         usage('backend option is mandatory')
         sys.exit(1)
-    if not keywordtags.has_key(backend):
+    if backend not in keywordtags:
         usage('illegal backend option')
         sys.exit(1)
     if language is None:
         usage('language option is mandatory')
         sys.exit(1)
-    if not keywords.has_key(language):
+    if language not in keywords:
         usage('illegal language option')
         sys.exit(1)
     # Do the work.
