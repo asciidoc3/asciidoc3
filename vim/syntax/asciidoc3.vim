@@ -1,9 +1,11 @@
 " Vim syntax file
-" Language:     AsciiDoc
+" Language:     AsciiDoc3
+" This script was not edited - except 'let b:current_syntax = "asciidoc3" ',
+" should work with AsciiDoc3, too. Thx to the contributors! 
 " Author:       Stuart Rackham <srackham@gmail.com> (inspired by Felix
 "               Obenhuber's original asciidoc.vim script).
-" URL:          http://asciidoc.org/
-" Licence:      GPL (http://www.gnu.org)
+" URL:          https://asciidoc3.org/
+" Licence:      AGPLv3 (http://www.gnu.org)
 " Remarks:      Vim 6 or greater
 " Limitations:
 " 
@@ -178,6 +180,6 @@ hi def link asciidocToDo Todo
 hi def link asciidocTriplePlusPassthrough Special
 hi def link asciidocTwoLineTitle Title
 hi def link asciidocURL Macro
-let b:current_syntax = "asciidoc"
+let b:current_syntax = "asciidoc3"
 
 " vim: wrap et sw=2 sts=2:
