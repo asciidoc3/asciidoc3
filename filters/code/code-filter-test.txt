@@ -1,8 +1,8 @@
 Code Filter Test
 ================
 
-[python]
-code~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[code,python]
+------------------------------------------------
 ''' A multi-line
     comment.'''
 def sub_word(mo):
@@ -12,4 +12,4 @@ def sub_word(mo):
                 return quote + word + quote
         else:
                 return word
-code~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------------
