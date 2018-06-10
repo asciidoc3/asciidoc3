@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 NAME
     latex2png - Converts LaTeX source to PNG file
@@ -44,6 +44,7 @@ SEE ALSO
 
 AUTHOR
     Written by Stuart Rackham, <srackham@gmail.com>
+    Python3: Berthold Gehrke, <berthold.gehrke@gmail.com>
     The code was inspired by Kjell Magne Fauske's code:
     http://fauskes.net/nb/htmleqII/
 
@@ -52,15 +53,13 @@ AUTHOR
     http://code.google.com/p/latexmath2png/
 
 COPYING
-    Copyright (C) 2010 Stuart Rackham. Free use of this software is
-    granted under the terms of the MIT License.
+    (Copyright (C) 2010 Stuart Rackham.)
+    Copyright (C) 2018 Berthold Gehrke.
+    Free use of this software is granted under the terms
+    of the Affero GPL v3.
 '''
 
-# Suppress warning: "the md5 module is deprecated; use hashlib instead"
-import warnings
-warnings.simplefilter('ignore',DeprecationWarning)
-
-import os, sys, tempfile, md5
+import os, sys, tempfile, hashlib
 
 VERSION = '0.1.0'
 
@@ -112,30 +111,30 @@ def run(cmd):
         cmd += ' 2>%s 1>&2' % os.devnull
     print_verbose('executing: %s' % cmd)
     if os.system(cmd):
-        raise EApp, 'failed command: %s' % cmd
+        raise EApp('failed command: %s' % cmd)
 
 def latex2png(infile, outfile, dpi, modified):
     '''Convert LaTeX input file infile to PNG file named outfile.'''
     outfile = os.path.abspath(outfile)
     outdir = os.path.dirname(outfile)
     if not os.path.isdir(outdir):
-        raise EApp, 'directory does not exist: %s' % outdir
+        raise EApp('directory does not exist: %s' % outdir)
     texfile = tempfile.mktemp(suffix='.tex', dir=os.path.dirname(outfile))
     basefile = os.path.splitext(texfile)[0]
     dvifile = basefile + '.dvi'
-    temps = [basefile + ext for ext in ('.tex','.dvi', '.aux', '.log')]
+    temps = [basefile + ext for ext in ('.tex', '.dvi', '.aux', '.log')]
     skip = False
     if infile == '-':
         tex = sys.stdin.read()
         if modified:
-            checksum = md5.new(tex).digest()
+            checksum = checksum = hashlib.new('md5', bytes(tex, encoding='utf-8', errors='ignore')).digest()
             md5_file = os.path.splitext(outfile)[0] + '.md5'
             if os.path.isfile(md5_file) and os.path.isfile(outfile) and \
-                    checksum == read_file(md5_file,'rb'):
+                    checksum == read_file(md5_file, 'rb'):
                 skip = True
     else:
         if not os.path.isfile(infile):
-            raise EApp, 'input file does not exist: %s' % infile
+            raise EApp('input file does not exist: %s' % infile)
         tex = read_file(infile)
         if modified and os.path.isfile(outfile) and \
                 os.path.getmtime(infile) <= os.path.getmtime(outfile):
@@ -156,7 +155,7 @@ def latex2png(infile, outfile, dpi, modified):
         if dpi:
             cmd += ' -D %s' % dpi
         cmd += ' -T tight -x 1000 -z 9 -bg Transparent --truecolor -o "%s" "%s" ' \
-               % (outfile,dvifile)
+               % (outfile, dvifile)
         run(cmd)
     finally:
         os.chdir(saved_pwd)
@@ -190,13 +189,13 @@ def main():
     outfile = None
     modified = False
     import getopt
-    opts,args = getopt.getopt(sys.argv[1:], 'D:o:mhv', ['help','version'])
-    for o,v in opts:
-        if o in ('--help','-h'):
-            print __doc__
+    opts, args = getopt.getopt(sys.argv[1:], 'D:o:mhv', ['help', 'version'])
+    for o, v in opts:
+        if o in ('--help', '-h'):
+            print(__doc__)
             sys.exit(0)
         if o =='--version':
-            print('latex2png version %s' % (VERSION,))
+            print(('latex2png version %s' % (VERSION,)))
             sys.exit(0)
         if o == '-D': dpi = v
         if o == '-o': outfile = v
@@ -227,6 +226,6 @@ if __name__ == "__main__":
         raise
     except KeyboardInterrupt:
         sys.exit(1)
-    except Exception, e:
+    except Exception as e:
         print_stderr("%s: %s" % (os.path.basename(sys.argv[0]), str(e)))
         sys.exit(1)
