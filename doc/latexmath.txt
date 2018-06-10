@@ -1,8 +1,8 @@
-Embedding LaTeX Math in AsciiDoc dblatex documents
+Embedding LaTeX Math in AsciiDoc3 dblatex documents
 ==================================================
 
-You can include LaTeX math equations in AsciiDoc documents that are
-processed by http://dblatex.sourceforge.net/[dblatex]. The AsciiDoc
+You can include LaTeX math equations in AsciiDoc3 documents that are
+processed by http://dblatex.sourceforge.net/[dblatex]. The AsciiDoc3
 'latexmath' macros and passthrough blocks generate DocBook
 'inlineequation', 'informalequation' and 'equation' elements
 containing the LaTeX markup which is processed by 'dblatex'.
@@ -117,5 +117,3 @@ Renders:
   \end{array}
 \right] \]
 ++++++++++++++++++++++++++++++++++++++++++++
-
-
