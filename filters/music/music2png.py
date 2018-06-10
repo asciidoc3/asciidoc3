@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 NAME
     music2png - Converts textual music notation to classically notated PNG file
@@ -43,18 +43,16 @@ SEE ALSO
     lilypond(1), abc2ly(1), convert(1)
 
 AUTHOR
-    Written by Stuart Rackham, <srackham@gmail.com>
+    Written by Stuart Rackham, <srackham@gmail.com>;
+    for Python3: Berthold Gehrke, <berthold.gehrke@gmail.com>
 
 COPYING
-    Copyright (C) 2006 Stuart Rackham. Free use of this software is
-    granted under the terms of the GNU General Public License (GPL).
+    (Copyright (C) 2006 Stuart Rackham.)
+    Copyright (C) 2018 Berthold Gehrke. Free use of this software is
+    granted under the terms of the Affero GNU General Public License (AGPLv3).
 '''
 
-# Suppress warning: "the md5 module is deprecated; use hashlib instead"
-import warnings
-warnings.simplefilter('ignore',DeprecationWarning)
-
-import os, sys, tempfile, md5
+import os, sys, tempfile, hashlib
 
 VERSION = '0.1.2'
 
@@ -90,30 +88,30 @@ def run(cmd):
         cmd += ' 2>%s' % os.devnull
     print_verbose('executing: %s' % cmd)
     if os.system(cmd):
-        raise EApp, 'failed command: %s' % cmd
+        raise EApp('failed command: %s' % cmd)
 
 def music2png(format, infile, outfile, modified):
     '''Convert ABC notation in file infile to cropped PNG file named outfile.'''
     outfile = os.path.abspath(outfile)
     outdir = os.path.dirname(outfile)
     if not os.path.isdir(outdir):
-        raise EApp, 'directory does not exist: %s' % outdir
+        raise EApp('directory does not exist: %s' % outdir)
     basefile = tempfile.mktemp(dir=os.path.dirname(outfile))
     temps = [basefile + ext for ext in ('.abc', '.ly', '.ps', '.midi')]
     skip = False
     if infile == '-':
         source = sys.stdin.read()
-        checksum = md5.new(source).digest()
+        checksum = hashlib.new('md5', bytes(source, encoding='utf-8', errors='ignore')).digest()
         filename = os.path.splitext(outfile)[0] + '.md5'
         if modified:
             if os.path.isfile(filename) and os.path.isfile(outfile) and \
-                    checksum == read_file(filename,'rb'):
+                    checksum == read_file(filename, 'rb'):
                 skip = True
             else:
                 write_file(filename, checksum, 'wb')
     else:
         if not os.path.isfile(infile):
-            raise EApp, 'input file does not exist: %s' % infile
+            raise EApp('input file does not exist: %s' % infile)
         if modified and os.path.isfile(outfile) and \
                 os.path.getmtime(infile) <= os.path.getmtime(outfile):
             skip = True
@@ -127,7 +125,7 @@ def music2png(format, infile, outfile, modified):
         else:
             format = 'abc'
     # Write temporary source file.
-    write_file('%s.%s' % (basefile,format), source)
+    write_file('%s.%s' % (basefile, format), source)
     abc = basefile + '.abc'
     ly = basefile + '.ly'
     png = basefile + '.png'
@@ -135,8 +133,8 @@ def music2png(format, infile, outfile, modified):
     os.chdir(outdir)
     try:
         if format == 'abc':
-            run('abc2ly -o "%s" "%s"' % (ly,abc))
-        run('lilypond --png -o "%s" "%s"' % (basefile,ly))
+            run('abc2ly -o "%s" "%s"' % (ly, abc))
+        run('lilypond --png -o "%s" "%s"' % (basefile, ly))
         os.rename(png, outfile)
     finally:
         os.chdir(saved_pwd)
@@ -171,13 +169,13 @@ def main():
     outfile = None
     modified = False
     import getopt
-    opts,args = getopt.getopt(sys.argv[1:], 'f:o:mhv', ['help','version'])
-    for o,v in opts:
-        if o in ('--help','-h'):
-            print __doc__
+    opts, args = getopt.getopt(sys.argv[1:], 'f:o:mhv', ['help', 'version'])
+    for o, v in opts:
+        if o in ('--help', '-h'):
+            print(__doc__)
             sys.exit(0)
         if o =='--version':
-            print('music2png version %s' % (VERSION,))
+            print(('music2png version %s' % (VERSION,)))
             sys.exit(0)
         if o == '-f': format = v
         if o == '-o': outfile = v
@@ -208,6 +206,6 @@ if __name__ == "__main__":
         raise
     except KeyboardInterrupt:
         sys.exit(1)
-    except Exception, e:
+    except Exception as e:
         print_stderr("%s: %s" % (os.path.basename(sys.argv[0]), str(e)))
         sys.exit(1)
