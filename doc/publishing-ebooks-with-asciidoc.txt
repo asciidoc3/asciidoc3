@@ -1,17 +1,17 @@
-Publishing eBooks with AsciiDoc
-===============================
+Publishing eBooks with AsciiDoc3
+================================
 // Web page meta data.
-:keywords:    AsciiDoc, EPUB tools, EPUB, PDF, ebooks
-:description: How to create EPUB and PDF ebooks using AsciiDoc.
+:keywords:    AsciiDoc3, EPUB tools, EPUB, PDF, ebooks
+:description: How to create EPUB and PDF ebooks using AsciiDoc3.
 
 ifdef::blogpost[]
-// Use the same article for both a blog post and on the AsciiDoc
+// Use the same article for both a blog post and on the AsciiDoc3
 // website.
-:blogpost-title: Publishing eBooks with AsciiDoc
+:blogpost-title: Publishing eBooks with AsciiDoc3
 :blogpost-status: published
 :blogpost-doctype: article
 :blogpost-posttype: post
-:blogpost-categories: AsciiDoc,eBook,EPUB,DocBook
+:blogpost-categories: AsciiDoc3,eBook,EPUB,DocBook
 
 *Published*: 2010-08-23 +
 *Updated*: 2010-05-08
@@ -19,7 +19,7 @@ endif::blogpost[]
 
 It's easy to write and publish books in
 http://en.wikipedia.org/wiki/EPUB[EPUB] and PDF formats using
-http://asciidoc.org/[AsciiDoc].
+http://asciidoc3.org/[AsciiDoc3].
 ifdef::blogpost[]
 This article was originally published on the
 http://asciidoc.org/publishing-ebooks-with-asciidoc.html[AsciiDoc
@@ -27,7 +27,7 @@ website].
 endif::blogpost[]
 
 Here are three examples: The first is a <<X1,minimal example>>
-introducing the AsciiDoc format, the second <<X2,The Brothers
+introducing the AsciiDoc 3format, the second <<X2,The Brothers
 Karamazov>> is a rather long multi-part book and the third <<X3,The
 Adventures of Sherlock Holmes>> includes a front cover image and
 customized page styling.
@@ -395,4 +395,3 @@ reference works and technical manuals complete with tables,
 illustrations, indexes, bibliographies and appendices. All the
 examples on the http:///asciidoc.org/[AsciiDoc web site]
 can be formatted as EPUB eBooks.
-
