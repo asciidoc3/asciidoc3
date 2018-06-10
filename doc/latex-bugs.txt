@@ -2,6 +2,8 @@ Bugs in asciidoc latex backend
 ==============================
 Geoff Eddy
 
+(identical to AsciiDoc, replace asciidoc with asciidoc3)
+
 Benjamin Klum was unable to maintain the LaTeX backend beyond version
 8.2.7, and as a consequence the `latex.conf` file ceased to work with
 `asciidoc` sometime after this. For version 8.4.3 I made some changes
