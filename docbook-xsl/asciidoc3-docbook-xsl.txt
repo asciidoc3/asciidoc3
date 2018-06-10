@@ -1,6 +1,7 @@
-AsciiDoc DocBook XSL Stylesheets Notes
+AsciiDoc3 DocBook XSL Stylesheets Notes
 ======================================
 
+(directory docbook-xsl: same content as AsciiDoc v2)
 Output file customisation is achieved by tweaking the DocBook XSL
 stylesheets.  I've tried to keep customization to a minimum and
 confine it to the separate XSL driver files in the distribution
