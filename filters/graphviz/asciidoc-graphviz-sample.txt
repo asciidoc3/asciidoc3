@@ -1,4 +1,4 @@
-= Graphviz filter for AsciiDoc =
+= Graphviz filter for AsciiDoc3 =
 
 Author: Gouichi Iisaka
 
@@ -19,10 +19,10 @@ And has many useful features for concrete diagrams,
 such as options for colors, fonts, tabular node layouts,
 line styles, hyperlinks, and custom shapes.
 
-AsciiDoc can external shell commands used to process Paragraph and 
+AsciiDoc3 can external shell commands used to process Paragraph and 
 DelimitedBlock content by Filter.
 
-So now, AsciiDoc can draw graphs via graphviz filter.
+So now, AsciiDoc3 can draw graphs via graphviz filter.
 
 == Examples ==
 
@@ -30,13 +30,13 @@ So now, AsciiDoc can draw graphs via graphviz filter.
 .....................................................................
 [graphviz]
 ---------------------------------------------------------------------
-digraph G { rankdir=LR; Graphviz->AsciiDoc->HTML}
+digraph G { rankdir=LR; Graphviz->AsciiDoc3->HTML}
 ---------------------------------------------------------------------
 .....................................................................
 
 [graphviz]
 ---------------------------------------------------------------------
-digraph G { rankdir=LR; Graphviz->AsciiDoc->HTML}
+digraph G { rankdir=LR; Graphviz->AsciiDoc3->HTML}
 ---------------------------------------------------------------------
 
 === Using options ===
@@ -168,3 +168,6 @@ Layout for graphviz as follows.  The default is `dot'.
      It relies on a force‐directed approach in the spirit of Fruchterman
      and Reingold 
      (cf.  Software‐Practice & Experience 21(11), 1991, pp. 1129‐1164).
+
+== Annotation ==
+This document was edited to meet the Python3 version of the filter.
