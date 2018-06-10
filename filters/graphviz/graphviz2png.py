@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os, sys, subprocess
 from optparse import *
@@ -14,6 +14,7 @@ class Application():
     '''
 NAME
     graphviz2png - Converts textual graphviz notation to PNG file
+    migrated to Python3 
 
 SYNOPSIS
     graphviz2png [options] INFILE
@@ -21,7 +22,6 @@ SYNOPSIS
 DESCRIPTION
     This filter reads Graphviz notation text from the input file
     INFILE (or stdin if INFILE is -), converts it to a PNG image file.
-
 
 OPTIONS
     -o OUTFILE, --outfile=OUTFILE
@@ -59,15 +59,19 @@ THANKS
 
 LICENSE
     Copyright (C) 2008-2009 Gouichi Iisaka.
+    Porting Python 2to3 and additional refactoring Copyright (C)
+    2017-2018 by Berthold Gehrke, <berthold.gehrke@gmail.com>.
     Free use of this software is granted under the terms of
-    the GNU General Public License (GPL).
+    the Affero GNU General Public License Version 3 (AGPL v3) or higher.
     '''
 
     def __init__(self, argv=None):
         # Run dot, get the list of supported formats. It's prefixed by some junk.
-        format_output = subprocess.Popen(["dot", "-T?"], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[1]
+        format_output = subprocess.Popen(["dot", "-T?"], stderr=subprocess.PIPE, stdout=subprocess.PIPE,
+                                         bufsize=-1, universal_newlines=True).communicate()[1]
         # The junk contains : and ends with :. So we split it, then strip the final endline, then split the list for future usage.
         supported_formats = format_output.split(": ")[2][:-1].split(" ")
+        #print(format_output)
 
         if not argv:
             argv = sys.argv
@@ -82,7 +86,7 @@ LICENSE
                 help="Output file"),
             Option("-L", "--layout", action="store",
                 dest="layout", default="dot", type="choice",
-                choices=['dot','neato','twopi','circo','fdp'],
+                choices=['dot', 'neato', 'twopi', 'circo', 'fdp'],
                 help="Layout type. LAYOUT=<dot|neato|twopi|circo|fdp>"),
             Option("-F", "--format", action="store",
                 dest="format", default="png", type="choice",
@@ -113,7 +117,7 @@ LICENSE
         else:
             cmd += ' 2>%s' % os.devnull
         if os.system(cmd):
-            raise EApp, 'failed command: %s' % cmd
+            raise EApp('failed command: %s' % cmd)
 
     def graphviz2png(self, infile, outfile):
         '''Convert Graphviz notation in file infile to
@@ -123,7 +127,7 @@ LICENSE
         outdir = os.path.dirname(outfile)
 
         if not os.path.isdir(outdir):
-            raise EApp, 'directory does not exist: %s' % outdir
+            raise EApp('directory does not exist: %s' % outdir)
 
         basefile = os.path.splitext(outfile)[0]
         saved_cwd = os.getcwd()
@@ -151,7 +155,7 @@ LICENSE
             open(infile, 'w').writelines(lines)
 
         if not os.path.isfile(infile):
-            raise EApp, 'input file does not exist: %s' % infile
+            raise EApp('input file does not exist: %s' % infile)
 
         if self.options.outfile is None:
             outfile = os.path.splitext(infile)[0] + '.png'
