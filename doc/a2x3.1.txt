@@ -1,37 +1,37 @@
-A2X(1)
+A2X3(1)
 ======
 :doctype: manpage
 
 
 NAME
 ----
-a2x - A toolchain manager for AsciiDoc (converts Asciidoc text files to other
+a2x3 - A toolchain manager for AsciiDoc3 (converts AsciiDoc3 text files to other
       file formats)
 
 
 SYNOPSIS
 --------
-*a2x* ['OPTIONS'] 'SOURCE_FILE'
+*a2x3* ['OPTIONS'] 'SOURCE_FILE'
 
 
 DESCRIPTION
 -----------
-A DocBook toolchain manager that translates an AsciiDoc text file
+A DocBook toolchain manager that translates an AsciiDoc3 text file
 'SOURCE_FILE' to PDF, EPUB, DVI, PS, LaTeX, XHTML (single page or
 chunked), man page, HTML Help or plain text formats using
-'asciidoc(1)' and other applications (see <<X1,REQUISITES section>>).
+'asciidoc3(1)' and other applications (see <<X1,REQUISITES section>>).
 'SOURCE_FILE' can also be a DocBook file with an .xml extension.
 
 
 OPTIONS
 -------
 *-a, --attribute*='ATTRIBUTE'::
-  Set asciidoc(1) attribute value (shortcut for *--asciidoc-opts*='"-a
+  Set asciidoc3(1) attribute value (shortcut for *--asciidoc3-opts*='"-a
   ATTRIBUTE"' option).
   This option may be specified more than once.
 
-*--asciidoc-opts*='ASCIIDOC_OPTS'::
-  Additional 'asciidoc(1)' options.
+*--asciidoc3-opts*='ASCIIDOC3_OPTS'::
+  Additional 'asciidoc3(1)' options.
   This option may be specified more than once.
 
 *--conf-file*='CONF_FILE'::
@@ -49,15 +49,15 @@ OPTIONS
 
 *-b, --backend*='BACKEND'::
   'BACKEND' is the name of an installed backend plugin. When this
-  option is specified 'a2x' attempts load a file name 'a2x-backend.py'
-  from the 'BACKEND' plugin directory It then converts the
+  option is specified 'a2x3' attempts load a file name 'a2x3-backend.py'
+  from the 'BACKEND' plugin directory. It then converts the
   'SOURCE_FILE' to a 'BACKEND' formatted output file using a global
-  function defined in 'a2x-backend.py' called 'to_BACKEND'.
+  function defined in 'a2x3-backend.py' called 'to_BACKEND'.
 
 *-f, --format*='FORMAT'::
   Output formats: 'chunked', 'docbook', 'dvi', 'epub', 'htmlhelp',
   'manpage', 'pdf' (default), 'ps', 'tex', 'text', 'xhtml'.
-  The AsciiDoc 'a2x-format' attribute value is set to 'FORMAT'.
+  The AsciiDoc3 'a2x3-format' attribute value is set to 'FORMAT'.
 
 *-h, --help*::
   Print command-line syntax and program options to stdout.
@@ -79,7 +79,7 @@ OPTIONS
   behavior is to use 'w3m(1)'.
 
 *-L, --no-xmllint*::
-  Do not check asciidoc output with 'xmllint(1)'.
+  Do not check asciidoc3 output with 'xmllint(1)'.
 
 *---epubcheck*::
   Check EPUB output with 'epubcheck(1)'.
@@ -121,8 +121,8 @@ OPTIONS
 
 *--fop*::
   Use FOP to generate PDFs. The default behavior is to use
-  'dblatex(1)'.  The '--fop' option is implicit if this option is
-  used.
+  'dblatex(1)'.  The '--fop' option is implicit when using the 
+  '--fop-opts' option.
 
 *--fop-opts*='FOP_OPTS'::
   Additional 'fop(1)' options. If this option is specified FOP is used
@@ -137,18 +137,18 @@ OPTIONS
   Options for the backend plugin specified by the '--backend' option.
   This option may be specified more than once.
 
-Options can also be set in the AsciiDoc source file. If 'SOURCE_FILE'
-contains a comment line beginning with *// a2x:* then the remainder of
-the line will be treated as 'a2x' command-line options. For example:
+Options can also be set in the AsciiDoc3 source file. If 'SOURCE_FILE'
+contains a comment line beginning with *// a2x3:* then the remainder of
+the line will be treated as 'a2x3' command-line options. For example:
 
-  // a2x default options.
-  //    a2x: -dbook --epubcheck
+  // a2x3 default options.
+  //    a2x3: -dbook --epubcheck
   // Suppress revision history in dblatex outputs.
-  //    a2x: --dblatex-opts "-P latex.output.revhistory=0"
+  //    a2x3: --dblatex-opts "-P latex.output.revhistory=0"
 
 - Options spanning multiple such comment lines will be concatenated.
 - Zero or more white space characters can appear between the leading
-  *//* and *a2x:*.
+  *//* and *a2x3:*.
 - Command-line options take precedence over options set in the source
   file.
 
@@ -180,11 +180,11 @@ RESOURCES
 ---------
 Resources are files (typically CSS and images) that are required by
 HTML based outputs ('xhtml', 'epub', 'chunked', 'htmlhelp' formats).
-'a2x' scans the generated HTML files and builds a list of required CSS
+'a2x3' scans the generated HTML files and builds a list of required CSS
 and image files. Additional resource files can be specified explicitly
 using the *--resource* option.
 
-'a2x' searches for resource files in the following locations in the
+'a2x3' searches for resource files in the following locations in the
 following order:
 
 . The 'SOURCE_FILE' directory.
@@ -194,7 +194,7 @@ following order:
   (searched recursively in the order they appear in the manifest
   file).
 . The stock `images` and `stylesheets` directories in the
-  'asciidoc(1)' configuration files directories (searched
+  'asciidoc3(1)' configuration files directories (searched
   recursively).
 . The destination directory.
 
@@ -258,25 +258,25 @@ Resource option examples:
 
 EXAMPLES
 --------
-`a2x -f pdf doc/source-highlight-filter.txt`::
+`a2x3 -f pdf doc/source-highlight-filter.txt`::
   Generates `doc/source-highlight-filter.pdf` file.
 
-`a2x -f xhtml -D ../doc --icons -r ../images/ team.txt`::
+`a2x3 -f xhtml -D ../doc --icons -r ../images/ team.txt`::
   Creates HTML file `../doc/team.html`, uses admonition icons and
   recursively searches the `../images/` directory for any missing
   resources.
 
-`a2x -f manpage doc/asciidoc.1.txt`::
-  Generate `doc/asciidoc.1` manpage.
+`a2x3 -f manpage doc/asciidoc3.1.txt`::
+  Generate `doc/asciidoc3.1` manpage.
 
 
 [[X1]]
 REQUISITES
 ----------
-'a2x' uses the following programs:
+'a2x3' uses the following programs:
 
-- *Asciidoc*:
-  http://asciidoc.org/
+- *AsciiDoc3*:
+  http://asciidoc3.org/
 - *xsltproc*: (all formats except text):
   http://xmlsoft.org/XSLT/
 - *DocBook XSL Stylesheets* (all formats except text):
@@ -299,14 +299,14 @@ See also the latest README file.
 CONF FILES
 ----------
 A configuration file contains executable Python code that overrides
-the global configuration parameters in `a2x.py`.  Optional configuration
+the global configuration parameters in `a2x3.py`.  Optional configuration
 files are loaded in the following order:
 
-. `a2x.conf` from the directory containing the 'a2x.py' executable.
-. `a2x.conf` from the AsciiDoc global configuration directory.  Skip
+. `a2x3.conf` from the directory containing the 'a2x3.py' executable.
+. `a2x3.conf` from the AsciiDoc3 global configuration directory.  Skip
   this step if we are executing a locally installed (non system wide)
   copy.
-. `a2x.conf` from the AsciiDoc `$HOME/.asciidoc` configuration
+. `a2x3.conf` from the AsciiDoc3 `$HOME/.asciidoc3` configuration
   directory.
 . The 'CONF_FILE' specified in the '--conf-file' option.
 
@@ -319,7 +319,7 @@ Here are the default configuration file option values:
 ENV = None
 
 # External executables.
-ASCIIDOC = 'asciidoc'
+ASCIIDOC3 = 'asciidoc3'
 XSLTPROC = 'xsltproc'
 DBLATEX = 'dblatex'         # pdf generation.
 FOP = 'fop'                 # pdf generation (--fop option).
@@ -328,7 +328,7 @@ LYNX = 'lynx'               # text generation (if no w3m).
 XMLLINT = 'xmllint'         # Set to '' to disable.
 EPUBCHECK = 'epubcheck'     # Set to '' to disable.
 # External executable default options.
-ASCIIDOC_OPTS = ''
+ASCIIDOC3_OPTS = ''
 DBLATEX_OPTS = ''
 FOP_OPTS = ''
 XSLTPROC_OPTS = ''
@@ -337,24 +337,22 @@ XSLTPROC_OPTS = ''
 
 BUGS
 ----
-See the AsciiDoc distribution BUGS file.
+See the AsciiDoc3 distribution BUGS file.
 
 
 AUTHOR
 ------
 a2x was originally written by Stuart Rackham. Many people have
-contributed to it.
+contributed to it. Ported to Python 3.x by Berthold Gehrke: a2x3 
 
 
 RESOURCES
 ---------
-SourceForge: http://sourceforge.net/projects/asciidoc/
-
-Main web site: http://asciidoc.org/
+Main web site: https://asciidoc3.org/
 
 
 COPYING
 -------
-Copyright \(C) 2002-2011 Stuart Rackham. Free use of this software is
-granted under the terms of the MIT license.
-
+(Copyright \(C) 2002-2011 Stuart Rackham. MIT license.)
+Copyright \(C) 2018 Berthold Gehrke. Free use of this software is
+granted under the terms of the Affero GPL v3 license or later.
