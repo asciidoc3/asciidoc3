@@ -1,5 +1,5 @@
 //
-// A collection of AsciiDoc test cases.
+// A collection of AsciiDoc3 test cases.
 //
 
 Test 'Cases'
