@@ -62,7 +62,7 @@ LICENSE
     Porting Python 2to3 and additional refactoring Copyright (C)
     2017-2018 by Berthold Gehrke, <berthold.gehrke@gmail.com>.
     Free use of this software is granted under the terms of
-    the Affero GNU General Public License Version 3 (AGPL v3) or higher.
+    the GNU General Public License Version 2 or higher (GPLv2+).
     '''
 
     def __init__(self, argv=None):
