@@ -21,10 +21,12 @@ Current *AsciiDoc3* version tested on Ubuntu Linux 17.04 with:
 Python 3.5.2
 
 ## Copying
-Copyright (C) Stuart Rackham
-(and contributors) for AsciiDoc v8.6.9 / Python2
+Copyright © Stuart Rackham
+
+(and contributors) for AsciiDoc v8.6.9 (Python2)
 
 Copyright © 2018 Berthold Gehrke <berthold.gehrke@gmail.com>
+
 for AsciiDoc3 (Python3)
 
 Free use of this software is granted under the terms of the GNU General Public License version 2 or later (GPLv2+).
