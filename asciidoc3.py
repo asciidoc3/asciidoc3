@@ -7,7 +7,7 @@ Copyright (C) 2002-2010 Stuart Rackham
 Copyright (C) 2018 by Berthold Gehrke <berthold.gehrke@gmail.com>
           for Python3 version and 2to3 work.
 Free use of this software is granted under the terms of the
-GNU General Public License Version 3 or higher (GNU GPLv3).
+GNU General Public License Version 2 or higher (GNU GPLv2+).
 """
 
 import ast
