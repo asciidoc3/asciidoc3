@@ -17,7 +17,7 @@ I wrote this file in first line for myself; it is to learn more about Python3 an
 
 === Open Source, License, Github ===
 AsciiDoc is open source. "COPYRIGHT" says: "... you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version..." +
-Thank you, Stuart, for writing this marvellous piece of software and owe it to the people! I hereby declare all my work on AsciiDoc, modifying it or adding something, Copyright (C) by Berthold Gehrke. Free use of this software is granted under the terms of the GNU Affero General Public License Version 3 (GNU AGPLv3) or, at your option, any later version. +
+Thank you, Stuart, for writing this marvellous piece of software and owe it to the people! I hereby declare all my work on AsciiDoc, modifying it or adding something, Copyright (C) by Berthold Gehrke. Free use of this software is granted under the terms of the (was: GNU Affero General Public License Version 3 (GNU AGPLv3)) GNU General Public License Version 2 (GNU GPLv2) or, at your option, any later version. +
 You can find the sources and additional information at https://www.github.com/asciidoc3/asciidoc3.
 
 
