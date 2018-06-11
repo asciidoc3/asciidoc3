@@ -42,14 +42,13 @@ AUTHOR
     Written by Stuart Rackham, <srackham@gmail.com>
 
 URLS
-    http://sourceforge.net/projects/asciidoc/
-    http://asciidoc.org/
+    https://asciidoc3.org/
 
 COPYING
-    Copyright (C) 2002-2006 Stuart Rackham. Free use of this software is
-    granted under the terms of the GNU General Public License (GPL).
-    AsciiDoc3 (C) 2018 Berthold Gehrke. Free use of this software is
-    granted under the terms of the Affero GNU General Public License v3.
+    Copyright (C) 2002-2006 Stuart Rackham.
+    AsciiDoc3 (C) 2018 Berthold Gehrke.
+    Free use of this software is granted under the terms of
+    the GNU General Public License v2 or higher (GPLv2+).
 '''
 
 import os, sys, re, string
