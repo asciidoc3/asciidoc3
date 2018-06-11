@@ -4,9 +4,9 @@
 Provides a test series. Many features of AsciiDoc3 are examined.
 Use it together with testasciidoc3.conf and asciidoc3api.py 
 living in the same directory.
-(c) 2018 Berthold Gehrke. Free use is granted under the
-GNU General Public License v3 or higher
-http://www.gnu.org/licenses/gpl-3.0.en.html
+(c) Stuart Rackham (and contributors), Berthold Gehrke.
+Free use is granted under the
+GNU General Public License v2 or higher
 """
 
 import difflib
