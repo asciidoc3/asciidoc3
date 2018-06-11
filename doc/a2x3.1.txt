@@ -353,6 +353,6 @@ Main web site: https://asciidoc3.org/
 
 COPYING
 -------
-(Copyright \(C) 2002-2011 Stuart Rackham. MIT license.)
+Copyright \(C) 2002-2011 Stuart Rackham.
 Copyright \(C) 2018 Berthold Gehrke. Free use of this software is
-granted under the terms of the Affero GPL v3 license or later.
+granted under the terms of the GPLv2 license or later.
