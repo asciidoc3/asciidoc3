@@ -56,7 +56,7 @@ COPYING
     (Copyright (C) 2010 Stuart Rackham.)
     Copyright (C) 2018 Berthold Gehrke.
     Free use of this software is granted under the terms
-    of the Affero GPL v3.
+    of the GPLv2 or higher.
 '''
 
 import os, sys, tempfile, hashlib
