@@ -47,9 +47,10 @@ AUTHOR
     for Python3: Berthold Gehrke, <berthold.gehrke@gmail.com>
 
 COPYING
-    (Copyright (C) 2006 Stuart Rackham.)
+    Copyright (C) 2006 Stuart Rackham.
     Copyright (C) 2018 Berthold Gehrke. Free use of this software is
-    granted under the terms of the Affero GNU General Public License (AGPLv3).
+    granted under the terms of the GNU General Public License v2
+    or higher (GPLv2+).
 '''
 
 import os, sys, tempfile, hashlib
