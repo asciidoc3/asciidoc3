@@ -4,8 +4,18 @@ AsciiDoc3 ChangeLog
 website: https://asciidoc3.org/
 
 
-Version 3.0.1 (2018-05-16)
+Version 3.0.1a (2018-06-11)
 
+Additions and changes
+- License changed from GPLv3 to GPLv2+ 
+- Adjust copyright byline
+- Repo github.com/asciidoc3/asciidoc3: adding history (AsciiDoc 8.6.9)
+
+Bug fixes
+- None
+
+
+Version 3.0.1 (2018-05-16)
 
 Additions and changes
 - License changed from AGPLv3 to GPLv3
@@ -28,8 +38,6 @@ Bug fixes
 - None
 
 
-
 Version 3.0.1rc (2018-04-13)
 
 This is the first version (release canidate) of AsciiDoc3 using Python3.
-
