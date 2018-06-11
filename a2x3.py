@@ -5,7 +5,7 @@ a2x3 - A toolchain manager for AsciiDoc3 - converts AsciiDoc3 text files to othe
 
 Copyright: (c) 2009 Stuart Rackham <srackham@gmail.com> MIT 
 Copyright: (c) 2018 Berthold Gehrke <berthold.gehrke@gmail.com> for Python3 version
-License:   GNU GPL v3 or higher
+License:   GNU GPL v2 or higher
 '''
 
 
