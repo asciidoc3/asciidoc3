@@ -190,7 +190,7 @@ Main web site: <https://asciidoc3.org/>
 
 COPYING
 -------
-(Copyright \(C) 2002-2011 Stuart Rackham.)
+Copyright \(C) 2002-2011 Stuart Rackham.
 Copyright \(C) 2018 Berthold Gehrke. Free use of this software is
-granted under the terms of the Affero GNU General Public License v3 
-AGPLv3 or (at your option) any later version.
+granted under the terms of the GNU General Public License v2 
+GPLv2 or (at your option) any later version.
