@@ -5,7 +5,7 @@
 " Author:       Stuart Rackham <srackham@gmail.com> (inspired by Felix
 "               Obenhuber's original asciidoc.vim script).
 " URL:          https://asciidoc3.org/
-" Licence:      AGPLv3 (http://www.gnu.org)
+" Licence:      GPLv2+ (http://www.gnu.org)
 " Remarks:      Vim 6 or greater
 " Limitations:
 " - Nested quoted text formatting is highlighted according to the outer
