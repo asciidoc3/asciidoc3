@@ -24,7 +24,7 @@ import zipfile
 
 PROG = os.path.basename(os.path.splitext(__file__)[0])
 # Version corresponds to asciidoc3.py version
-VERSION = '3.0.1'
+VERSION = '3.0.2'
 
 # AsciiDoc3 global configuration file directory.
 # NOTE: CONF_DIR is "fixed up" during install -- don't rename or change syntax.
