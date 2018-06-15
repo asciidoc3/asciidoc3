@@ -10,23 +10,17 @@ formats including HTML, PDF, EPUB, man page.
 ## Prerequisites
 *AsciiDoc3* is written in 100% pure Python3 so you need a Python interpreter (version 3.x or later) to execute asciidoc3.py.
 Python is installed by default in most Linux distributions. You can download Python from the official Python website
-http://www.python.org.
+https://www.python.org.
 
 ## Obtaining AsciiDoc3
-Documentation and installation instructions are on the *AsciiDoc3* website http://asciidoc3.org/
+Documentation and installation instructions are on the *AsciiDoc3* website https://asciidoc3.org/
 
 ## Tools
-Current *AsciiDoc3* version tested on Ubuntu Linux 17.04 with:
-
-Python 3.5.2
+Current *AsciiDoc3* version tested on Ubuntu Linux 17.04 with Python 3.5.2, Debian Siduction with Python 3.6.5+, and others...
 
 ## Copying
-Copyright © Stuart Rackham
+Copyright © Stuart Rackham (and contributors) for AsciiDoc v8.6.9 (Python2)
 
-(and contributors) for AsciiDoc v8.6.9 (Python2)
-
-Copyright © 2018 Berthold Gehrke <berthold.gehrke@gmail.com>
-
-for AsciiDoc3 (Python3)
+Copyright © 2018 Berthold Gehrke <berthold.gehrke@gmail.com> for AsciiDoc3 (Python3)
 
 Free use of this software is granted under the terms of the GNU General Public License version 2 or later (GPLv2+).
