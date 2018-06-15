@@ -49,7 +49,7 @@ Doctests: ...
 Copyright (C) 2009 Stuart Rackham.
 Copyright (C) 2018 Berthold Gehrke <berthold.gehrke@gmail.com>.
 Free use of this software is granted under the terms of the
-GNU General Public License v3 or higher (GPLv3).
+GNU General Public License v2 or higher (GPLv2+).
 """
 
 import os
