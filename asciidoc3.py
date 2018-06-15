@@ -31,7 +31,7 @@ from unicodedata import east_asian_width, normalize
 import zipfile
 
 ### Used by asciidoc3api.py ###
-VERSION = '3.0.1'           # See CHANGELOG file for version history.
+VERSION = '3.0.2'           # See CHANGELOG file for version history.
 MIN_PYTHON_VERSION = '3.0'  # Require this version of Python or better.
 
 #---------------------------------------------------------------------------
