@@ -4,6 +4,20 @@ AsciiDoc3 ChangeLog
 website: https://asciidoc3.org/
 
 
+Version 3.0.2 (2018-06-15)
+
+Additions and changes
+- Adding some files to /doc 
+- Remove files in dir /tests (to come back later ...)
+- Re-adding some files
+- Typos
+
+Bug fixes
+- asciidoc3.py: ... /usr/lib/python3.6/sre_parse.py", line 401, in _escape
+  raise source.error("bad escape %s" % escape, len(escape))
+  sre_constants.error: bad escape \i at position 28 ...
+  
+  
 Version 3.0.1a (2018-06-11)
 
 Additions and changes
@@ -36,6 +50,7 @@ Additions and changes
 
 Bug fixes
 - None
+
 
 
 Version 3.0.1rc (2018-04-13)
