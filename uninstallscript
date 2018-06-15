@@ -50,4 +50,4 @@ if not os.access("/usr/bin/asciidoc3", os.F_OK | os.W_OK):
     print("no access to /usr/bin/asciidoc3")
     sys.exit(1)
 else:
-os.remove("/usr/bin/asciidoc3")
+    os.remove("/usr/bin/asciidoc3")
