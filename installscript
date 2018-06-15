@@ -99,7 +99,6 @@ try:
     for item in callout_files:
         shutil.copyfile("images/icons/callouts/"+item, "/usr/share/asciidoc3/icons/callouts/"+item)
         os.chmod("/usr/share/asciidoc3/icons/callouts/"+item, 0o644)
-        #print(item)
 except (OSError, PermissionError):
     print("no access to /usr/share/asciidoc3")
     sys.exit(1)
@@ -186,7 +185,6 @@ try:
     for item in etc_files:
         shutil.copyfile(item, "/etc/asciidoc3/"+item)
         os.chmod("/etc/asciidoc3/"+item, 0o644)
-        #print(item)
 except (OSError, PermissionError):
     print("no access to /etc/asciidoc3")
     sys.exit(1)
@@ -304,7 +302,6 @@ try:
     for item in etc_files:
         shutil.copyfile("docbook-xsl/"+item, "/etc/asciidoc3/docbook-xsl/"+item)
         os.chmod("/etc/asciidoc3/docbook-xsl/"+item, 0o644)
-        #print(item)
 except (OSError, PermissionError):
     print("no access to /etc/asciidoc3")
     sys.exit(1)
