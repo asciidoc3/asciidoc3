@@ -4838,7 +4838,7 @@ class Reader(Reader1):
                 self.cursor[2] = result  # So we don't re-evaluate.
         if result:
             # Unescape escaped system macros.
-            # Second line 'r' to fix:
+            # Second line 'r' to fix
             # 'usr/lib/python3.6/sre_parse.py'
             # 'bad escape \i at position ...'
             if macros.match('+', \
