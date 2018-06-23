@@ -11,7 +11,7 @@ DESCRIPTION
     This filter reads source code from the standard input, highlights language
     keywords and comments and writes to the standard output.
 
-    The purpose of this program is to demonstrate how to write an AsciiDoc
+    The purpose of this program is to demonstrate how to write an AsciiDoc3
     filter -- it's much to simplistic to be passed off as a code syntax
     highlighter. Use the 'source-highlight-filter' instead.
 
@@ -51,9 +51,12 @@ COPYING
     the GNU General Public License v2 or higher (GPLv2+).
 '''
 
-import os, sys, re, string
+import os
+import re
+# import string
+import sys
 
-VERSION = '3.0.1'
+VERSION = '3.0.2'
 
 # Globals.
 language = None
@@ -81,27 +84,27 @@ commenttags = {
 }
 keywords = {
     'python':
-         ('and', 'del', 'for', 'is', 'raise', 'assert', 'elif', 'from',
+        ('and', 'del', 'for', 'is', 'raise', 'assert', 'elif', 'from',
          'lambda', 'return', 'break', 'else', 'global', 'not', 'try', 'class',
          'except', 'if', 'or', 'while', 'continue', 'exec', 'import', 'pass',
          'yield', 'def', 'finally', 'in', 'print'),
     'ruby':
         ('__FILE__', 'and', 'def', 'end', 'in', 'or', 'self', 'unless',
-        '__LINE__', 'begin', 'defined?' 'ensure', 'module', 'redo', 'super',
-        'until', 'BEGIN', 'break', 'do', 'false', 'next', 'rescue', 'then',
-        'when', 'END', 'case', 'else', 'for', 'nil', 'retry', 'true', 'while',
-        'alias', 'class', 'elsif', 'if', 'not', 'return', 'undef', 'yield'),
+         '__LINE__', 'begin', 'defined?' 'ensure', 'module', 'redo', 'super',
+         'until', 'BEGIN', 'break', 'do', 'false', 'next', 'rescue', 'then',
+         'when', 'END', 'case', 'else', 'for', 'nil', 'retry', 'true', 'while',
+         'alias', 'class', 'elsif', 'if', 'not', 'return', 'undef', 'yield'),
     'c++':
         ('asm', 'auto', 'bool', 'break', 'case', 'catch', 'char', 'class',
-        'const', 'const_cast', 'continue', 'default', 'delete', 'do', 'double',
-        'dynamic_cast', 'else', 'enum', 'explicit', 'export', 'extern',
-        'false', 'float', 'for', 'friend', 'goto', 'if', 'inline', 'int',
-        'long', 'mutable', 'namespace', 'new', 'operator', 'private',
-        'protected', 'public', 'register', 'reinterpret_cast', 'return',
-        'short', 'signed', 'sizeof', 'static', 'static_cast', 'struct',
-        'switch', 'template', 'this', 'throw', 'true', 'try', 'typedef',
-        'typeid', 'typename', 'union', 'unsigned', 'using', 'virtual', 'void',
-        'volatile', 'wchar_t', 'while')
+         'const', 'const_cast', 'continue', 'default', 'delete', 'do', 'double',
+         'dynamic_cast', 'else', 'enum', 'explicit', 'export', 'extern',
+         'false', 'float', 'for', 'friend', 'goto', 'if', 'inline', 'int',
+         'long', 'mutable', 'namespace', 'new', 'operator', 'private',
+         'protected', 'public', 'register', 'reinterpret_cast', 'return',
+         'short', 'signed', 'sizeof', 'static', 'static_cast', 'struct',
+         'switch', 'template', 'this', 'throw', 'true', 'try', 'typedef',
+         'typeid', 'typename', 'union', 'unsigned', 'using', 'virtual', 'void',
+         'volatile', 'wchar_t', 'while')
 }
 block_comments = {
     'python': ("'''", "'''"),
@@ -123,8 +126,7 @@ def sub_keyword(mo):
     if word in keywords[language]:
         stag, etag = keywordtags[backend]
         return stag+word+etag
-    else:
-        return word
+    return word
 
 def code_filter():
     '''This function does all the work.'''
@@ -133,7 +135,7 @@ def code_filter():
     blk_comment = block_comments[language]
     if blk_comment:
         blk_comment = (re.escape(block_comments[language][0]),
-            re.escape(block_comments[language][1]))
+                       re.escape(block_comments[language][1]))
     stag, etag = commenttags[backend]
     in_comment = 0  # True if we're inside a multi-line block comment.
     tag_comment = 0 # True if we should tag the current line as a comment.
@@ -167,7 +169,8 @@ def code_filter():
                 else:
                     tag_comment = 0
         if tag_comment:
-            if line: line = stag+line+etag
+            if line:
+                line = stag+line+etag
         else:
             if inline_comment:
                 pos = line.find(inline_comment)
@@ -193,9 +196,9 @@ def main():
     # Process command line options.
     import getopt
     opts, args = getopt.getopt(sys.argv[1:],
-        'b:l:ht:v',
-        ['help', 'version'])
-    if len(args) > 0:
+                               'b:l:ht:v',
+                               ['help', 'version'])
+    if len(args):
         usage()
         sys.exit(1)
     for o, v in opts:
@@ -241,6 +244,6 @@ if __name__ == "__main__":
         pass
     except:
         print_stderr("%s: unexpected exit status: %s" %
-            (os.path.basename(sys.argv[0]), sys.exc_info()[1]))
+                     (os.path.basename(sys.argv[0]), sys.exc_info()[1]))
     # Exit with previous sys.exit() status or zero if no sys.exit().
     sys.exit(sys.exc_info()[1])
