@@ -53,20 +53,24 @@ COPYING
     or higher (GPLv2+).
 '''
 
-import os, sys, tempfile, hashlib
+import hashlib
+import os
+import sys
+import tempfile
 
 VERSION = '0.1.2'
 
 # Globals.
-verbose = False
+VERBOSE = False
 
-class EApp(Exception): pass     # Application specific exception.
+class EApp(Exception):
+    pass     # Application specific exception.
 
 def print_stderr(line):
     sys.stderr.write(line + os.linesep)
 
 def print_verbose(line):
-    if verbose:
+    if VERBOSE:
         print_stderr(line)
 
 def write_file(filename, data, mode='w'):
@@ -84,8 +88,8 @@ def read_file(filename, mode='r'):
         f.close()
 
 def run(cmd):
-    global verbose
-    if not verbose:
+    global VERBOSE
+    if not VERBOSE:
         cmd += ' 2>%s' % os.devnull
     print_verbose('executing: %s' % cmd)
     if os.system(cmd):
@@ -165,7 +169,7 @@ def usage(msg=''):
 
 def main():
     # Process command line options.
-    global verbose
+    global VERBOSE
     format = None
     outfile = None
     modified = False
@@ -175,13 +179,17 @@ def main():
         if o in ('--help', '-h'):
             print(__doc__)
             sys.exit(0)
-        if o =='--version':
+        if o == '--version':
             print(('music2png version %s' % (VERSION,)))
             sys.exit(0)
-        if o == '-f': format = v
-        if o == '-o': outfile = v
-        if o == '-m': modified = True
-        if o == '-v': verbose = True
+        if o == '-f':
+            format = v
+        if o == '-o':
+            outfile = v
+        if o == '-m':
+            modified = True
+        if o == '-v':
+            VERBOSE = True
     if len(args) != 1:
         usage()
         sys.exit(1)
