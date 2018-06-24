@@ -17,7 +17,7 @@ Example Abstract
 ----------------
 The optional abstract (one or more paragraphs) goes here.
 
-This document is an AsciiDoc article skeleton containing briefly
+This document is an AsciiDoc3 article skeleton containing briefly
 annotated element placeholders plus a couple of example index entries
 and footnotes.
 
@@ -57,7 +57,7 @@ Followed by an example table:
 
 .An example example
 ===============================================
-Lorum ipum...
+Lirum larum ipsum...
 ===============================================
 
 [[X1]]
@@ -74,7 +74,7 @@ Yet another nested Sub-section
 Sub-section at level 4.
 
 This is the maximum sub-section depth supported by the distributed
-AsciiDoc configuration.
+AsciiDoc3 configuration.
 footnote:[A second example footnote.]
 
 
@@ -94,7 +94,7 @@ An example link to a bibliography entry <<taoup>>.
 [appendix]
 Example Appendix
 ----------------
-AsciiDoc article appendices are just just article sections with
+AsciiDoc3 article appendices are just just article sections with
 'specialsection' titles.
 
 Appendix Sub-section
@@ -105,7 +105,7 @@ Appendix sub-section at level 2.
 [bibliography]
 Example Bibliography
 --------------------
-The bibliography list is a style of AsciiDoc bulleted list.
+The bibliography list is a style of AsciiDoc3 bulleted list.
 
 [bibliography]
 - [[[taoup]]] Eric Steven Raymond. 'The Art of Unix
@@ -119,7 +119,7 @@ The bibliography list is a style of AsciiDoc bulleted list.
 Example Glossary
 ----------------
 Glossaries are optional. Glossaries entries are an example of a style
-of AsciiDoc labeled lists.
+of AsciiDoc3 labeled lists.
 
 [glossary]
 A glossary term::
