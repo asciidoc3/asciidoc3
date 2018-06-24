@@ -1,2 +1,2 @@
-/tests/
-!/tests/readme-tests.txt
+#/tests/
+#!/tests/readme-tests.txt
