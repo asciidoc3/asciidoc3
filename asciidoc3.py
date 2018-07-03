@@ -49,8 +49,8 @@ SUBS_NORMAL = ('specialcharacters', 'quotes', 'attributes', 'specialwords',
                'replacements', 'macros', 'replacements2')
 SUBS_VERBATIM = ('specialcharacters', 'callouts')
 
-NAME_RE = r'(?u)[^\W\d][-\w]*'  # Valid section or attribute name.
-OR, AND = ',', '+'              # Attribute list separators.
+NAME_RE = r'[^\W\d][-\w]*'    # Valid section or attribute name.
+OR, AND = ',', '+'            # Attribute list separators.
 
 #---------------------------------------------------------------------------
 # Utility functions and classes.
@@ -561,7 +561,7 @@ def parse_options(options, allowed, errmsg):
 
 def symbolize(s):
     """Drop non-symbol characters and convert to lowercase."""
-    return re.sub(r'(?u)[^\w\-_]', '', s).lower()
+    return re.sub(r'[^\w\-_]', '', s).lower()
 
 def is_name(s):
     """Return True if s is valid attribute, macro or tag name
@@ -586,14 +586,14 @@ def subs_quotes(text):
         if tag[0] == '#':
             tag = tag[1:]
             # Unconstrained quotes can appear anywhere.
-            reo = re.compile(r'(?msu)(^|.)(\[(?P<attrlist>[^[\]]+?)\])?' \
+            reo = re.compile(r'(?ms)(^|.)(\[(?P<attrlist>[^[\]]+?)\])?' \
                     + r'(?:' + re.escape(lq) + r')' \
                     + r'(?P<content>.+?)(?:'+re.escape(rq)+r')')
         else:
             # The text within constrained quotes must be bounded by white space.
             # Non-word (\W) characters are allowed at boundaries to accomodate
             # enveloping quotes and punctuation e.g. a='x', ('x'), 'x', ['x'].
-            reo = re.compile(r'(?msu)(^|[^\w;:}])(\[(?P<attrlist>[^[\]]+?)\])?' \
+            reo = re.compile(r'(?ms)(^|[^\w;:}])(\[(?P<attrlist>[^[\]]+?)\])?' \
                 + r'(?:' + re.escape(lq) + r')' \
                 + r'(?P<content>\S|\S.*?\S)(?:'+re.escape(rq)+r')(?=\W|$)')
         pos = 0
@@ -1068,7 +1068,7 @@ def subs_attrs(lines, dictionary=None):
         line = line.replace('\\}', '}\\')
         # Expand simple attributes ({name}).
         # Nested attributes not allowed.
-        reo = re.compile(r'(?su)\{(?P<name>[^\\\W][-\w]*?)\}(?!\\)')
+        reo = re.compile(r'(?s)\{(?P<name>[^\\\W][-\w]*?)\}(?!\\)')
         pos = 0
         while True:
             mo = reo.search(line, pos)
@@ -1082,11 +1082,11 @@ def subs_attrs(lines, dictionary=None):
                 pos = mo.start() + len(s)
         # Expand conditional attributes.
         # Single name -- higher precedence.
-        reo1 = re.compile(r'(?su)\{(?P<name>[^\\\W][-\w]*?)' \
+        reo1 = re.compile(r'(?s)\{(?P<name>[^\\\W][-\w]*?)' \
                           r'(?P<op>\=|\?|!|#|%|@|\$)' \
                           r'(?P<value>.*?)\}(?!\\)')
         # Multiple names (n1,n2,... or n1+n2+...) -- lower precedence.
-        reo2 = re.compile(r'(?su)\{(?P<name>[^\\\W][-\w'+OR+AND+r']*?)' \
+        reo2 = re.compile(r'(?s)\{(?P<name>[^\\\W][-\w'+OR+AND+r']*?)' \
                           r'(?P<op>\=|\?|!|#|%|@|\$)' \
                           r'(?P<value>.*?)\}(?!\\)')
         for reo in [reo1, reo2]:
@@ -1182,14 +1182,14 @@ def subs_attrs(lines, dictionary=None):
                 line = line[:mo.start()] + s + line[end:]
                 pos = mo.start() + len(s)
         # Drop line if it contains  unsubstituted {name} references.
-        skipped = re.search(r'(?su)\{[^\\\W][-\w]*?\}(?!\\)', line)
+        skipped = re.search(r'(?s)\{[^\\\W][-\w]*?\}(?!\\)', line)
         if skipped:
             trace('dropped line', line)
             continue
         # Expand system attributes (eval has precedence).
         reos = [
-            re.compile(r'(?su)\{(?P<action>eval):(?P<expr>.*?)\}(?!\\)'),
-            re.compile(r'(?su)\{(?P<action>[^\\\W][-\w]*?):(?P<expr>.*?)\}(?!\\)'),
+            re.compile(r'(?s)\{(?P<action>eval):(?P<expr>.*?)\}(?!\\)'),
+            re.compile(r'(?s)\{(?P<action>[^\\\W][-\w]*?):(?P<expr>.*?)\}(?!\\)'),
         ]
         skipped = False
         for reo in reos:
@@ -2191,7 +2191,7 @@ class AttributeEntry:
                 attr.name = attr.name[:-1]
                 attr.value = None
             # Strip white space and illegal name chars.
-            attr.name = re.sub(r'(?u)[^\w\-_]', '', attr.name).lower()
+            attr.name = re.sub(r'[^\w\-_]', '', attr.name).lower()
             # Don't override most command-line attributes.
             if attr.name in config.cmd_attrs \
                     and attr.name not in ('trace', 'numbered'):
@@ -2412,7 +2412,7 @@ class Title:
             if ul != s[:ul_len]: return False
             # Don't be fooled by back-to-back delimited blocks, require at
             # least one alphanumeric character in title.
-            if not re.search(r'(?u)\w', title): return False
+            if not re.search(r'\w', title): return False
             mo = re.match(Title.pattern, title)
             if mo:
                 Title.attributes = mo.groupdict()
@@ -2581,7 +2581,7 @@ class Section:
         """
         # Replace non-alpha numeric characters in title with underscores and
         # convert to lower case.
-        base_id = re.sub(r'(?u)\W+', '_', title).strip('_').lower()
+        base_id = re.sub(r'\W+', '_', title).strip('_').lower()
         if 'ascii-ids' in document.attributes:
             # Replace non-ASCII characters with ASCII equivalents.
             #import unicodedata   # is already imported
@@ -3977,7 +3977,7 @@ class Table(AbstractBlock):
             else:
                 self.error('illegal table cell operator')
         text = '\n'.join(text)
-        separator = '(?msu)'+self.parameters.separator
+        separator = '(?ms)'+self.parameters.separator
         format = self.parameters.format
         start = 0
         span = None
@@ -4189,7 +4189,7 @@ class Tables(AbstractBlocks):
 
 class Macros:
     # Default system macro syntax.
-    SYS_RE = r'(?u)^(?P<name>[\\]?\w(\w|-)*?)::(?P<target>\S*?)' + \
+    SYS_RE = r'^(?P<name>[\\]?\w(\w|-)*?)::(?P<target>\S*?)' + \
              r'(\[(?P<attrlist>.*?)\])$'
     def __init__(self):
         self.macros = []        # List of Macros.
@@ -5124,7 +5124,7 @@ class Config:
         rdr.open(fname)
         message.linenos = None
         self.fname = fname
-        reo = re.compile(r'(?u)^\[(?P<section>\+?[^\W\d][\w-]*)\]\s*$')
+        reo = re.compile(r'^\[(?P<section>\+?[^\W\d][\w-]*)\]\s*$')
         sections = OrderedDict()
         section, contents = '', []
         while not rdr.eof():
