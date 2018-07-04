@@ -6,7 +6,7 @@ Version: 1.1.3
 
 == Introduction ==
 
-The Graphviz(link:http://www.graphviz.org[]) is a way of representing structural information
+The Graphviz (link:http://www.graphviz.org[]) is a way of representing structural information
 as diagrams of abstract graphs and networks.
 
 

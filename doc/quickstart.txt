@@ -69,9 +69,9 @@ $ python3 ../a2x3.py -f pdf userguide.txt
 ------------
 
 [NOTE]
-Depending on your directory layout - when your AsciiDoc3-folder is 'not' a subdirectory of your home-directory - you may encounter an error message like this: +
+Depending on your directory layout - when your AsciiDoc3-folder is not a subdirectory of your home-directory - you may encounter an error message like this: +
 Error: [Errno 1] Operation not permitted: <your_asciidoc3-folder_not_under_home>/test.pdf +
-You can ignore that, the pdf is there and complete! That's probably a dblatex-issue (?) - I am working on it ... +
+You can ignore that, the pdf is there and complete. That's probably a dblatex-issue (or a vfat partition?) - I am working on it ... +
 As a workaround you may use 'sudo python3 a2x3.py -f pdf userguide.txt' or the system wide command 'a2x3.py -f pdf userguide.txt' or the following option --fop.
 
 To make an even better(?) looking pdf, you may use option 'fop' - this requires that you have installed 'fop'.
@@ -102,4 +102,4 @@ $ a2x3 -f pdf -v --fop userguide.txt
 == More Examples and Further Information
 
 In the directory ~/asciidoc3/doc you find some more files you may use as examples to study the features of AsciiDoc3. +
-Please note 'asciidoc3port.txt': this file contains a detailed report on the porting efforts. Try 'a2x3 -f pdf -v --fop asciidoc3port.txt' to produce a PDF.
+Please take a closer look at 'asciidoc3port.txt': this file contains a detailed report on the porting efforts. Try 'a2x3 -f pdf -v --fop asciidoc3port.txt' to produce a PDF.

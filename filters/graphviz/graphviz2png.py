@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
-import os, sys, subprocess
+import os
 from optparse import *
+import subprocess
+import sys
+
 
 __AUTHOR__ = "Gouichi Iisaka <iisaka51@gmail.com>"
 __VERSION__ = '1.1.4'
@@ -14,7 +17,7 @@ class Application():
     '''
 NAME
     graphviz2png - Converts textual graphviz notation to PNG file
-    migrated to Python3 
+    migrated to Python3
 
 SYNOPSIS
     graphviz2png [options] INFILE
@@ -55,23 +58,24 @@ AUTHOR
 
 THANKS
     Stuart Rackham, <srackham@gmail.com>
-    This script was inspired by his music2png.py and AsciiDoc
+    This script was inspired by his music2png.py
 
 LICENSE
     Copyright (C) 2008-2009 Gouichi Iisaka.
-    Porting Python 2to3 and additional refactoring Copyright (C)
-    2017-2018 by Berthold Gehrke, <berthold.gehrke@gmail.com>.
+    Porting Python 2to3 and additional refactoring Copyright
+    (C) 2018 by Berthold Gehrke, <berthold.gehrke@gmail.com>.
     Free use of this software is granted under the terms of
     the GNU General Public License Version 2 or higher (GPLv2+).
     '''
 
     def __init__(self, argv=None):
         # Run dot, get the list of supported formats. It's prefixed by some junk.
-        format_output = subprocess.Popen(["dot", "-T?"], stderr=subprocess.PIPE, stdout=subprocess.PIPE,
-                                         bufsize=-1, universal_newlines=True).communicate()[1]
-        # The junk contains : and ends with :. So we split it, then strip the final endline, then split the list for future usage.
+        format_output = subprocess.Popen(["dot", "-T?"], stderr=subprocess.PIPE, \
+                                         stdout=subprocess.PIPE, bufsize=-1, \
+                                         universal_newlines=True).communicate()[1]
+        # The junk contains : and ends with :. So we split it, then strip the final
+        # endline, then split the list for future usage.
         supported_formats = format_output.split(": ")[2][:-1].split(" ")
-        #print(format_output)
 
         if not argv:
             argv = sys.argv
@@ -82,26 +86,26 @@ LICENSE
 
         self.option_list = [
             Option("-o", "--outfile", action="store",
-                dest="outfile",
-                help="Output file"),
+                   dest="outfile",
+                   help="Output file"),
             Option("-L", "--layout", action="store",
-                dest="layout", default="dot", type="choice",
-                choices=['dot', 'neato', 'twopi', 'circo', 'fdp'],
-                help="Layout type. LAYOUT=<dot|neato|twopi|circo|fdp>"),
+                   dest="layout", default="dot", type="choice",
+                   choices=['dot', 'neato', 'twopi', 'circo', 'fdp'],
+                   help="Layout type. LAYOUT=<dot|neato|twopi|circo|fdp>"),
             Option("-F", "--format", action="store",
-                dest="format", default="png", type="choice",
-                choices=supported_formats,
-                help="Format type. FORMAT=<" + "|".join(supported_formats) + ">"),
+                   dest="format", default="png", type="choice",
+                   choices=supported_formats,
+                   help="Format type. FORMAT=<" + "|".join(supported_formats) + ">"),
             Option("--debug", action="store_true",
-                dest="do_debug",
-                help=SUPPRESS_HELP),
+                   dest="do_debug",
+                   help=SUPPRESS_HELP),
             Option("-v", "--verbose", action="store_true",
-                dest="do_verbose", default=False,
-                help="verbose output"),
+                   dest="do_verbose", default=False,
+                   help="verbose output"),
             ]
 
-        self.parser = OptionParser( usage=self.usage, version=self.version,
-                                    option_list=self.option_list)
+        self.parser = OptionParser(usage=self.usage, version=self.version,
+                                   option_list=self.option_list)
         (self.options, self.args) = self.parser.parse_args()
 
         if len(self.args) != 1:
@@ -122,19 +126,19 @@ LICENSE
     def graphviz2png(self, infile, outfile):
         '''Convert Graphviz notation in file infile to
            PNG file named outfile.'''
-
         outfile = os.path.abspath(outfile)
         outdir = os.path.dirname(outfile)
 
         if not os.path.isdir(outdir):
             raise EApp('directory does not exist: %s' % outdir)
 
-        basefile = os.path.splitext(outfile)[0]
+        # Unused variable 'basefile'
+        #basefile = os.path.splitext(outfile)[0]
         saved_cwd = os.getcwd()
         os.chdir(outdir)
         try:
             cmd = '%s -T%s "%s" > "%s"' % (
-                  self.options.layout, self.options.format, infile, outfile)
+                self.options.layout, self.options.format, infile, outfile)
             self.systemcmd(cmd)
         finally:
             os.chdir(saved_cwd)
@@ -169,5 +173,5 @@ LICENSE
             sys.stdout.write(' ')
 
 if __name__ == "__main__":
-    app = Application()
-    app.run()
+    APP = Application()
+    APP.run()
