@@ -15,8 +15,8 @@ https://www.python.org.
 ## Obtaining AsciiDoc3
 Documentation and installation instructions are on the *AsciiDoc3* website https://asciidoc3.org/
 
-## Tools
-Current *AsciiDoc3* version tested on Ubuntu Linux 17.04 with Python 3.5.2, Debian Siduction with Python 3.6.5+, and others...
+## Git
+You can find the up-to-date repo here: https://gitlab.com/asciidoc3/asciidoc3 
 
 ## Copying
 Copyright © Stuart Rackham (and contributors) for AsciiDoc v8.6.9 (Python2)
