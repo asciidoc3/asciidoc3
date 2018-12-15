@@ -19,6 +19,9 @@ You can find the up-to-date repo here: https://gitlab.com/asciidoc3/asciidoc3
 ## PyPI / PIP
 *AsciiDoc3* can also be obtained here: https://pypi.org/project/asciidoc3. Look at the information given at https://asciidoc3.org/pypi.html before installing.
 
+## Pelican Plugin Available
+See here https://github.com/getpelican/pelican-plugins/pull/1081/project/asciidoc3.
+
 ## Copying
 Copyright © Stuart Rackham (and contributors) for AsciiDoc v8.6.9 (Python2)<br/>
 Copyright © 2018 Berthold Gehrke <berthold.gehrke@gmail.com> for AsciiDoc3 (Python3)<br/>
