@@ -8,13 +8,12 @@ formats including HTML, PDF, EPUB, man page.<br/>
 (which can be almost any type of SGML/XML markup) can be customized and extended by the user.
 
 ## Prerequisites
-*AsciiDoc3* is written in 100% pure Python3 so you need a Python interpreter. Python3 is installed by default in most Linux distributions. You can download Python from the official Python website https://www.python.org.
+*AsciiDoc3* is written in 100% pure Python3, so you need a Python interpreter (version 3.5 or later) to execute the program.
+Python is installed by default in most Linux distributions. You can download Python from the official website
+https://www.python.org.
 
 ## Obtaining AsciiDoc3
-Documentation and installation instructions are on the *AsciiDoc3* website https://asciidoc3.org/ 
-
-## deb rpm Packages
-Packages for Debian/Ubuntu/Mint or SuSE/Fedora/RedHat systems are also available here: https://asciidoc3.org/download.html.
+deb rpm packages tarball generic installer Pelican Plugin PyPI (GNU/Linux and Windows) available! See documentation and installation instructions on the *AsciiDoc3* website https://asciidoc3.org/ 
 
 ## PyPI / pip
 *AsciiDoc3* can also be obtained here: https://pypi.org/project/asciidoc3. Look at the information given at https://asciidoc3.org/pypi.html before installing.
