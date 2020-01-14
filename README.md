@@ -29,5 +29,5 @@ See here https://github.com/getpelican/pelican-plugins/pull/1081 or https://gith
 
 ## Copying
 Copyright © Stuart Rackham (and contributors) for AsciiDoc v8.6.9 (Python2)<br/>
-Copyright © 2018 - 2019 Berthold Gehrke <berthold.gehrke@gmail.com> for AsciiDoc3 (Python3)<br/>
+Copyright © 2018 - 2020 Berthold Gehrke <berthold.gehrke@gmail.com> for AsciiDoc3 (Python3)<br/>
 Free use of this software is granted under the terms of the GNU General Public License version 2 or later (GPLv2+).
