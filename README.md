@@ -1,33 +1,34 @@
 # asciidoc3
-## Text based document generation using Python 3; Python3 port of AsciiDoc
+## Text based document generation using Python 3.x; Python3 port of AsciiDoc
 
 *AsciiDoc3* is a text document format for writing notes, documentation, articles, books,
-ebooks, slideshows, web pages, man pages and blogs. *AsciiDoc3* files can be translated to many
-formats including HTML, PDF, EPUB, man page.<br/>
-*AsciiDoc3* is highly configurable: both the *AsciiDoc3* source file syntax and the backend output markups
-(which can be almost any type of SGML/XML markup) can be customized and extended by the user.
+ebooks, slideshows, web pages, man pages and blogs. *AsciiDoc3* files can be translated
+to many formats including HTML, PDF, EPUB, man page, and DocBook markup (at your choice v4.5 or v5.1).
+*AsciiDoc3* is highly configurable: both the *AsciiDoc3* source file syntax and the backend
+output markups (which can be almost any type of SGML/XML markup) can be customized and extended by the user.
 
 ## Prerequisites
-*AsciiDoc3* is written in 100% pure Python3, so you need a Python interpreter (version 3.5 or later) to execute the program.
-Python is installed by default in most Linux distributions. You can download Python from the official website
-https://www.python.org.
+*AsciiDoc3* is written in 100% pure Python3. So you need a Python interpreter (version 3.5 or later)
+to execute asciidoc3.py. Python is installed by default in most Linux distributions. You can download
+Python from the official website https://www.python.org.
 
 ## Obtaining AsciiDoc3
-deb rpm packages tarball generic installer Pelican Plugin PyPI (GNU/Linux and Windows) available! See documentation and installation instructions on the *AsciiDoc3* website https://asciidoc3.org/ 
+deb rpm packages tarball generic installer zip PyPI (GNU/Linux and Windows) Pelican Plugin available!
+See documentation and installation instructions on the *AsciiDoc3* website https://asciidoc3.org/
 
-## PyPI / pip
-*AsciiDoc3* can also be obtained here: https://pypi.org/project/asciidoc3. Look at the information given at https://asciidoc3.org/pypi.html before installing.
+## Tools
+Current *AsciiDoc3* version tested on Debian Siduction, Ubuntu 20.04 LTS (Focal Fossa),
+openSUSE Tumbleweed, Windows 10, and other platforms (Python 3.7.x / 3.8.x).
 
-## AsciiDoc3 and Windows
-*AsciiDoc3* runs on Windows, too (PyPI or zip-File available). More infos here https://asciidoc3.org/windows.html
-
-## Git
-You can find the up-to-date repo here: https://gitlab.com/asciidoc3/asciidoc3
-
-## Pelican Plugin Available
-See here https://github.com/getpelican/pelican-plugins/pull/1081 or https://github.com/asciidoc3/pelican-plugins
+## Dependencies
+*AsciiDoc3* comes without dependencies (aside Python3, of course). To exploit all features of *AsciiDoc3*,
+you need - where necessary - DocBook XSL Stylesheets, xsltproc, w3m, dblatex, FOP, Pygments, graphviz ...
+You'll find these packages in the repos of your operating system.
 
 ## Copying
-Copyright © Stuart Rackham (and contributors) for AsciiDoc v8.6.9 (Python2)<br/>
-Copyright © 2018 - 2020 Berthold Gehrke <berthold.gehrke@gmail.com> for AsciiDoc3 (Python3)<br/>
-Free use of this software is granted under the terms of the GNU General Public License version 2 or later (GPLv2+).
+Copyright © Stuart Rackham (and contributors) for AsciiDoc v8.6.9 (Python2)
+
+Copyright © 2018-2020 Berthold Gehrke <berthold.gehrke@gmail.com> for AsciiDoc3 (Python3)
+
+Free use of this software is granted under the terms of the
+GNU General Public License version 2 or later (GPLv2+).
