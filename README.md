@@ -1,5 +1,6 @@
 # asciidoc3
 ## Text based document generation using Python 3.x; Python3 port of AsciiDoc
+## --> Repo has moved to https://gitlab.com/asciidoc3/asciidoc3 <--
 
 *AsciiDoc3* is a text document format for writing notes, documentation, articles, books,
 ebooks, slideshows, web pages, man pages and blogs. *AsciiDoc3* files can be translated
