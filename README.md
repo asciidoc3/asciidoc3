@@ -18,7 +18,7 @@ deb rpm packages tarball generic installer zip PyPI (GNU/Linux and Windows) Dock
 See documentation and installation instructions on the *AsciiDoc3* website https://asciidoc3.org/
 
 ## Tools
-Current *AsciiDoc3* version tested on Debian Siduction, Ubuntu 20.04 LTS (Focal Fossa),
+Current *AsciiDoc3* version tested on Debian Siduction, Ubuntu 22.04 LTS (Jammy Jellyfish),
 openSUSE Tumbleweed, Ghost BSD, Windows 10/11, ...
 
 ## Dependencies
