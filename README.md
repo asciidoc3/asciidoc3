@@ -1,6 +1,9 @@
+## --> Repo has moved to https://gitlab.com/asciidoc3/asciidoc3 <--  
+Do not fork this repo any more: outdated, insecure ...
+
 # asciidoc3
 ## Text based document generation using Python3; Python3 port of AsciiDoc
-## --> Repo has moved to https://gitlab.com/asciidoc3/asciidoc3 <--
+
 
 *AsciiDoc3* is a text document format for writing notes, documentation, articles, books,
 ebooks, slideshows, web pages, man pages and blogs. *AsciiDoc3* files can be translated
@@ -29,7 +32,7 @@ You'll find these packages in the repos of your operating system.
 ## Copying
 Copyright © Stuart Rackham (and contributors) for AsciiDoc v8.6.9 (Python2)
 
-Copyright © 2018-2022 Berthold Gehrke <berthold.gehrke@gmail.com> for AsciiDoc3 (Python3)
+Copyright © 2018-2018 Berthold Gehrke <berthold.gehrke@gmail.com> for AsciiDoc3 (Python3)
 
 Free use of this software is granted under the terms of the
 GNU General Public License version 2 or later (GPLv2+).
